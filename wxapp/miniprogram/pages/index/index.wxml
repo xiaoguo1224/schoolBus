@@ -119,62 +119,66 @@
         </view>
       </view>
 
-      <view wx:if="{{currentMode === 'commute'}}" class="section-header">
-        <view>
-          <view class="section-title">今日班车</view>
-          <view class="section-subtitle">点击卡片进入班次详情和扫码流程</view>
-        </view>
-        <view class="section-link" bindtap="onMapTap">查看地图</view>
-      </view>
-
-      <view
-        wx:for="{{todayTrips}}"
-        wx:key="id"
-        class="trip-card card"
-        data-trip-id="{{item.id}}"
-        bindtap="onTripTap"
-      >
-        <view class="trip-head">
+      <view wx:if="{{currentMode === 'commute'}}">
+        <view class="section-header">
           <view>
-            <view class="trip-title">{{item.routeName}}</view>
-            <view class="trip-direction">{{item.direction}}</view>
+            <view class="section-title">今日班车</view>
+            <view class="section-subtitle">点击卡片进入班次详情和扫码流程</view>
           </view>
-          <view class="trip-status">{{item.status}}</view>
+          <view class="section-link" bindtap="onMapTap">查看地图</view>
         </view>
 
-        <view class="trip-meta">
-          <view class="meta-item">
-            <text class="meta-label">发车</text>
-            <text class="meta-value">{{item.departTime}}</text>
+        <view
+          wx:for="{{todayTrips}}"
+          wx:key="id"
+          class="trip-card card"
+          data-trip-id="{{item.id}}"
+          bindtap="onTripTap"
+        >
+          <view class="trip-head">
+            <view>
+              <view class="trip-title">{{item.routeName}}</view>
+              <view class="trip-direction">{{item.direction}}</view>
+            </view>
+            <view class="trip-status">{{item.status}}</view>
           </view>
-          <view class="meta-item">
-            <text class="meta-label">到达</text>
-            <text class="meta-value">{{item.arriveTime}}</text>
-          </view>
-          <view class="meta-item">
-            <text class="meta-label">余座</text>
-            <text class="meta-value">{{item.seatsLeft}} / {{item.capacity}}</text>
-          </view>
-        </view>
 
-        <view class="trip-bottom">
-          <text class="muted">{{item.vehicle}} · {{item.driver}}</text>
-          <text class="trip-eta">预计 {{item.eta}}</text>
+          <view class="trip-meta">
+            <view class="meta-item">
+              <text class="meta-label">发车</text>
+              <text class="meta-value">{{item.departTime}}</text>
+            </view>
+            <view class="meta-item">
+              <text class="meta-label">到达</text>
+              <text class="meta-value">{{item.arriveTime}}</text>
+            </view>
+            <view class="meta-item">
+              <text class="meta-label">余座</text>
+              <text class="meta-value">{{item.seatsLeft}} / {{item.capacity}}</text>
+            </view>
+          </view>
+
+          <view class="trip-bottom">
+            <text class="muted">{{item.vehicle}} · {{item.driver}}</text>
+            <text class="trip-eta">预计 {{item.eta}}</text>
+          </view>
         </view>
       </view>
 
-      <view wx:else class="section-header">
-        <view>
-          <view class="section-title">共享电动车车辆</view>
-          <view class="section-subtitle">展示附近车辆、电量、资格和骑行入口</view>
+      <view wx:if="{{currentMode === 'ebike'}}">
+        <view class="section-header">
+          <view>
+            <view class="section-title">共享电动车车辆</view>
+            <view class="section-subtitle">展示附近车辆、电量、资格和骑行入口</view>
+          </view>
         </view>
-      </view>
 
-      <view wx:else class="grid-2">
-        <view wx:for="{{ebikeItems}}" wx:key="id" class="service-card card">
-          <view class="service-label">{{item.name}}</view>
-          <view class="service-desc">{{item.rule}}</view>
-          <view class="service-meta">{{item.battery}} · {{item.distance}} · {{item.status}}</view>
+        <view class="grid-2">
+          <view wx:for="{{ebikeItems}}" wx:key="id" class="service-card card">
+            <view class="service-label">{{item.name}}</view>
+            <view class="service-desc">{{item.rule}}</view>
+            <view class="service-meta">{{item.battery}} · {{item.distance}} · {{item.status}}</view>
+          </view>
         </view>
       </view>
 
