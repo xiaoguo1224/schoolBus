@@ -31,6 +31,6 @@
 
 - Removed `PageKey`, `NavItem`, and `navItems` from `wxapp/miniprogram/mock/bus.ts` so the old page-level navigation contract no longer coexists with the native `tabBar`; the remaining mock exports were left unchanged.
 - Verification run:
-  - `cd wxapp; npm run check` - not run yet in this pass.
-  - `cd ..; git diff --check` - not run yet in this pass.
-- New commit hash: pending until verification and commit complete.
+  - `cd wxapp; npm run check` - passed (`tsc -p tsconfig.json --noEmit`).
+  - `cd ..; git diff --check` - passed; Git only emitted LF/CRLF normalization warnings for `fronted/app.js` and `wxapp/miniprogram/mock/bus.ts`.
+- New commit hash: `ce060fb`
