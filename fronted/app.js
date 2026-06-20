@@ -1034,7 +1034,520 @@ var appState = {
   activeModuleId: 'dashboard',
   selectedRouteId: 'route-01',
   selectedHeatPeriodId: 'morning',
+  selectedStationName: '北门',
+  tableFilters: {},
   lastAction: '固定数据演示，可切换模块、线路和热度。',
+}
+
+const heatmapSlots = {
+  morning: ['07:00', '07:30', '08:00'],
+  midday: ['11:30', '12:10', '12:50'],
+  evening: ['16:30', '17:30', '18:10'],
+}
+
+let chartInstances = []
+let echartsLoaderPromise = null
+let renderSeq = 0
+
+function ensureEcharts() {
+  if (window.echarts) {
+    return Promise.resolve(window.echarts)
+  }
+  if (!echartsLoaderPromise) {
+    echartsLoaderPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = './vendor/echarts.min.js'
+      script.async = true
+      script.onload = () => resolve(window.echarts)
+      script.onerror = () => reject(new Error('ECharts 本地资源加载失败'))
+      document.head.appendChild(script)
+    })
+  }
+  return echartsLoaderPromise
+}
+
+function disposeCharts() {
+  chartInstances.forEach((chart) => {
+    try {
+      chart.dispose()
+    } catch (error) {
+      // ignore
+    }
+  })
+  chartInstances = []
+}
+
+function registerChart(chart) {
+  if (chart) {
+    chartInstances.push(chart)
+  }
+  return chart
+}
+
+function initChart(domId, option, setup) {
+  const el = document.getElementById(domId)
+  if (!el || !window.echarts) {
+    return null
+  }
+
+  const chart = registerChart(window.echarts.init(el, null, { renderer: 'canvas' }))
+  chart.setOption(option, true)
+  if (typeof setup === 'function') {
+    setup(chart)
+  }
+  return chart
+}
+
+function parseOccupancy(value) {
+  const [used, total] = String(value)
+    .split('/')
+    .map((item) => Number.parseInt(item.trim(), 10))
+  return {
+    used: Number.isFinite(used) ? used : 0,
+    total: Number.isFinite(total) ? total : 0,
+  }
+}
+
+function getRoute(routeId) {
+  return dispatchRoutes.find((item) => item.id === routeId) || dispatchRoutes[0]
+}
+
+function getHeatPeriod(periodId) {
+  return heatmapPeriods.find((item) => item.id === periodId) || heatmapPeriods[0]
+}
+
+function getSelectedStation(period) {
+  return period.mapPoints.find((item) => item.name === appState.selectedStationName) || period.mapPoints[0]
+}
+
+function selectRoute(routeId, reason) {
+  const route = getRoute(routeId)
+  appState.selectedRouteId = route.id
+  appState.selectedStationName = route.stops[0]?.name || appState.selectedStationName
+  appState.lastAction = reason || `已切换到 ${route.title}`
+  renderModule(appState.activeModuleId)
+}
+
+function selectHeatPeriod(periodId, reason) {
+  const period = getHeatPeriod(periodId)
+  appState.selectedHeatPeriodId = period.id
+  appState.selectedStationName = period.mapPoints[0]?.name || appState.selectedStationName
+  appState.lastAction = reason || `已切换到 ${period.label}`
+  renderModule(appState.activeModuleId)
+}
+
+function selectStation(name, reason) {
+  if (!name) {
+    return
+  }
+  appState.selectedStationName = name
+  const route = dispatchRoutes.find((item) => item.stops.some((stop) => stop.name === name))
+  if (route) {
+    appState.selectedRouteId = route.id
+  }
+  appState.lastAction = reason || `已聚焦站点 ${name}`
+  renderModule(appState.activeModuleId)
+}
+
+function getModuleTableFilter(moduleId) {
+  return appState.tableFilters?.[moduleId] || 'all'
+}
+
+function setModuleTableFilter(moduleId, filter) {
+  appState.tableFilters = {
+    ...(appState.tableFilters || {}),
+    [moduleId]: filter,
+  }
+  const module = modules.find((item) => item.id === moduleId)
+  appState.lastAction = `${module ? module.title : moduleId} 已切换筛选：${filter}`
+  renderModule(moduleId)
+}
+
+function filterTableRows(rows, filter) {
+  if (filter === 'all') {
+    return rows
+  }
+  return rows.filter((row) => {
+    const text = row.join(' ')
+    if (filter === 'active') {
+      return /运行中|进行中|已支付|已绑定|可用|已通过|候车中/.test(text)
+    }
+    if (filter === 'pending') {
+      return /待|处理中|未开始|待发车|待出发|即将|异常/.test(text)
+    }
+    if (filter === 'done') {
+      return /已完成|已核销|已通过|已支付|已绑定|已结束/.test(text)
+    }
+    if (filter === 'warning') {
+      return /异常|冻结|停用|驳回/.test(text)
+    }
+    return true
+  })
+}
+
+function buildTrendOption() {
+  const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+  const orders = [112, 124, 118, 136, 152, 168, 176]
+  const calls = [24, 28, 31, 35, 39, 44, 48]
+  const refunds = [2, 1, 3, 2, 4, 3, 2]
+
+  return {
+    color: ['#4d81ff', '#36b7a1', '#f1b84f'],
+    tooltip: { trigger: 'axis' },
+    legend: {
+      top: 0,
+      itemWidth: 12,
+      itemHeight: 12,
+      textStyle: { color: '#35506f' },
+    },
+    grid: { left: 40, right: 24, top: 44, bottom: 28 },
+    xAxis: {
+      type: 'category',
+      data: days,
+      axisLine: { lineStyle: { color: 'rgba(89, 123, 170, 0.2)' } },
+      axisLabel: { color: '#6d8097' },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: '#6d8097' },
+      splitLine: { lineStyle: { color: 'rgba(89, 123, 170, 0.12)' } },
+    },
+    series: [
+      {
+        name: '订单',
+        type: 'line',
+        data: orders,
+        smooth: true,
+        symbolSize: 8,
+        lineStyle: { width: 3 },
+        areaStyle: { color: 'rgba(77, 129, 255, 0.15)' },
+      },
+      {
+        name: '呼叫',
+        type: 'line',
+        data: calls,
+        smooth: true,
+        symbolSize: 8,
+        lineStyle: { width: 3 },
+        areaStyle: { color: 'rgba(54, 183, 161, 0.14)' },
+      },
+      {
+        name: '退款',
+        type: 'bar',
+        data: refunds,
+        barWidth: 14,
+        itemStyle: {
+          borderRadius: [8, 8, 0, 0],
+          color: 'rgba(241, 184, 79, 0.78)',
+        },
+      },
+    ],
+  }
+}
+
+function buildRouteLoadOption() {
+  const routes = dispatchRoutes.map((route) => {
+    const occupancy = parseOccupancy(route.occupancy)
+    return {
+      name: route.title,
+      loaded: occupancy.used,
+      empty: Math.max(occupancy.total - occupancy.used, 0),
+      color: route.accent,
+    }
+  })
+
+  return {
+    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+    legend: {
+      top: 0,
+      itemWidth: 10,
+      itemHeight: 10,
+      textStyle: { color: '#35506f' },
+    },
+    grid: { left: 42, right: 18, top: 42, bottom: 24 },
+    xAxis: {
+      type: 'category',
+      data: routes.map((item) => item.name.replace('线', '').trim()),
+      axisLabel: { color: '#6d8097' },
+      axisLine: { lineStyle: { color: 'rgba(89, 123, 170, 0.2)' } },
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: '#6d8097' },
+      splitLine: { lineStyle: { color: 'rgba(89, 123, 170, 0.12)' } },
+    },
+    series: [
+      {
+        name: '已占座',
+        type: 'bar',
+        stack: 'load',
+        data: routes.map((item) => item.loaded),
+        barWidth: 16,
+        itemStyle: { color: '#4d81ff', borderRadius: [6, 6, 0, 0] },
+      },
+      {
+        name: '空座',
+        type: 'bar',
+        stack: 'load',
+        data: routes.map((item) => item.empty),
+        barWidth: 16,
+        itemStyle: { color: 'rgba(54, 183, 161, 0.55)', borderRadius: [6, 6, 0, 0] },
+      },
+    ],
+  }
+}
+
+function buildDispatchOption(route, period, compact = false) {
+  const selectedStation = getSelectedStation(period)
+  const routeColors = {
+    'route-01': '#4d81ff',
+    'route-02': '#36b7a1',
+    'route-03': '#f1b84f',
+  }
+  const pointMap = new Map(period.mapPoints.map((item) => [item.name, item]))
+
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'item',
+      formatter: (params) => {
+        if (params.seriesType === 'line') {
+          return `${params.seriesName}<br/>线路轨迹`
+        }
+        if (params.seriesType === 'scatter') {
+          const data = params.data || {}
+          const name = data.name || params.name
+          const value = data.value || []
+          return `${name}<br/>候车热度：${value[2] || 0}`
+        }
+        return params.name || ''
+      },
+    },
+    grid: {
+      left: compact ? 16 : 22,
+      right: compact ? 16 : 22,
+      top: compact ? 18 : 26,
+      bottom: compact ? 16 : 22,
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'value',
+      min: 0,
+      max: 100,
+      axisLabel: { show: false },
+      axisTick: { show: false },
+      axisLine: { show: false },
+      splitLine: { show: true, lineStyle: { color: 'rgba(89, 123, 170, 0.08)' } },
+    },
+    yAxis: {
+      type: 'value',
+      min: 0,
+      max: 100,
+      axisLabel: { show: false },
+      axisTick: { show: false },
+      axisLine: { show: false },
+      splitLine: { show: true, lineStyle: { color: 'rgba(89, 123, 170, 0.08)' } },
+    },
+    visualMap: {
+      show: false,
+      min: 30,
+      max: 100,
+      dimension: 2,
+      inRange: {
+        color: ['#dce7ff', '#8bb7ff', '#68d0c0', '#f1c45d', '#ff8d82'],
+      },
+    },
+    series: [
+      ...dispatchRoutes.map((item) => ({
+        name: item.title,
+        type: 'line',
+        data: item.stops.map((stop) => {
+          const point = pointMap.get(stop.name) || stop
+          return [point.x, point.y]
+        }),
+        smooth: 0.25,
+        symbol: 'circle',
+        symbolSize: item.id === route.id ? 10 : 7,
+        showSymbol: false,
+        lineStyle: {
+          width: item.id === route.id ? 4 : 2,
+          opacity: item.id === route.id ? 1 : 0.28,
+          color: routeColors[item.id] || item.accent || '#4d81ff',
+        },
+        emphasis: { focus: 'series' },
+        z: item.id === route.id ? 3 : 1,
+      })),
+      {
+        name: '站点热度',
+        type: 'scatter',
+        data: period.mapPoints.map((point) => ({
+          name: point.name,
+          value: [point.x, point.y, Number(point.count)],
+          itemStyle: {
+            color:
+              point.name === selectedStation.name
+                ? '#ff7d73'
+                : routeColors[route.id] || '#4d81ff',
+          },
+        })),
+        symbolSize: (value) => 12 + value[2] / 10,
+        label: {
+          show: true,
+          formatter: '{b}',
+          position: 'top',
+          color: '#35506f',
+          fontWeight: 700,
+        },
+        itemStyle: {
+          shadowBlur: 10,
+          shadowColor: 'rgba(53, 80, 111, 0.12)',
+        },
+        emphasis: { scale: true },
+        z: 4,
+      },
+      {
+        name: '重点站点',
+        type: 'effectScatter',
+        data: selectedStation
+          ? [
+              {
+                name: selectedStation.name,
+                value: [selectedStation.x, selectedStation.y, Number(selectedStation.count)],
+              },
+            ]
+          : [],
+        symbolSize: 18,
+        rippleEffect: { brushType: 'stroke', scale: 2.5 },
+        itemStyle: { color: routeColors[route.id] || '#4d81ff' },
+        label: {
+          show: true,
+          formatter: selectedStation ? selectedStation.name : '',
+          position: 'right',
+          color: '#17314b',
+          fontWeight: 800,
+        },
+        z: 5,
+      },
+    ],
+  }
+}
+
+function buildHeatmapOption(period, compact = false) {
+  const stations = period.mapPoints.map((item) => item.name)
+  const slots = heatmapSlots[period.id] || ['07:00', '12:00', '18:00']
+  const selectedStation = getSelectedStation(period)
+  const data = []
+
+  period.mapPoints.forEach((point, stationIndex) => {
+    const base = Number(point.count)
+    slots.forEach((slot, slotIndex) => {
+      const wobble = [0.88, 1, 0.94][slotIndex % 3]
+      const value = Math.max(0, Math.min(100, Math.round(base * wobble - stationIndex * 2 + slotIndex * 4)))
+      data.push([stationIndex, slotIndex, value])
+    })
+  })
+
+  const bestCell = data
+    .filter((item) => stations[item[0]] === selectedStation.name)
+    .sort((a, b) => b[2] - a[2])[0]
+
+  return {
+    tooltip: {
+      position: 'top',
+      formatter: (params) => {
+        const [stationIndex, slotIndex, value] = params.value
+        return [
+          `${slots[slotIndex] || ''}`,
+          `${stations[stationIndex] || ''}`,
+          `热度：${value}`,
+        ].join('<br/>')
+      },
+    },
+    grid: {
+      left: compact ? 84 : 88,
+      right: compact ? 18 : 22,
+      top: compact ? 24 : 36,
+      bottom: compact ? 42 : 54,
+      containLabel: true,
+    },
+    xAxis: {
+      type: 'category',
+      data: stations,
+      splitArea: { show: true },
+      axisLabel: {
+        color: '#35506f',
+        rotate: compact ? 0 : 18,
+      },
+      axisLine: { lineStyle: { color: 'rgba(89, 123, 170, 0.2)' } },
+    },
+    yAxis: {
+      type: 'category',
+      data: slots,
+      splitArea: { show: true },
+      axisLabel: { color: '#6d8097' },
+      axisLine: { lineStyle: { color: 'rgba(89, 123, 170, 0.2)' } },
+    },
+    visualMap: {
+      min: 0,
+      max: 100,
+      calculable: true,
+      orient: compact ? 'horizontal' : 'horizontal',
+      left: compact ? 'center' : 'center',
+      bottom: 0,
+      itemWidth: compact ? 12 : 14,
+      itemHeight: compact ? 100 : 120,
+      inRange: {
+        color: ['#f3f7ff', '#dce7ff', '#a8c8ff', '#71d7c7', '#f4c15d', '#ff8d82'],
+      },
+      textStyle: { color: '#6d8097' },
+    },
+    series: [
+      {
+        name: '候车热度',
+        type: 'heatmap',
+        data,
+        label: {
+          show: true,
+          color: '#17314b',
+          fontWeight: 700,
+          formatter: (params) => (params.value[2] >= 72 ? params.value[2] : ''),
+        },
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowColor: 'rgba(53, 80, 111, 0.18)',
+          },
+        },
+        markPoint: bestCell
+          ? {
+              symbol: 'roundRect',
+              symbolSize: [72, 28],
+              label: {
+                color: '#17314b',
+                fontWeight: 800,
+                formatter: selectedStation.name,
+              },
+              data: [
+                {
+                  coord: [bestCell[0], bestCell[1]],
+                  value: bestCell[2],
+                },
+              ],
+            }
+          : undefined,
+      },
+    ],
+  }
+}
+
+function resizeCharts() {
+  chartInstances.forEach((chart) => {
+    try {
+      chart.resize()
+    } catch (error) {
+      // ignore
+    }
+  })
 }
 
 function renderNav(activeId) {
@@ -1134,19 +1647,16 @@ function renderActions(module) {
 
 function handleAction(action, target, value) {
   if (action === 'module' && target) {
+    appState.lastAction = `已切换到 ${modules.find((item) => item.id === target)?.title || target}`
     renderModule(target)
     return
   }
   if (action === 'route' && value) {
-    appState.selectedRouteId = value
-    appState.lastAction = `已切换线路到 ${value.replace('route-', '').replace('0', '')}`
-    renderModule('dispatch-map')
+    selectRoute(value, `已切换线路到 ${getRoute(value).title}`)
     return
   }
   if (action === 'heat' && value) {
-    appState.selectedHeatPeriodId = value
-    appState.lastAction = `已切换到 ${value === 'morning' ? '早高峰' : value === 'midday' ? '午间' : '晚高峰'}`
-    renderModule('heatmap')
+    selectHeatPeriod(value, `已切换到 ${getHeatPeriod(value).label}`)
     return
   }
   if (action === 'flag') {
@@ -1231,32 +1741,58 @@ function renderRail(module) {
 
 function renderDashboardWorkspace(module) {
   if (workspaceTitle) workspaceTitle.textContent = '运营总览'
-  if (workspaceSubtitle) workspaceSubtitle.textContent = '地图调度和热力图直接显示在总览首页，便于演示。'
+  if (workspaceSubtitle) workspaceSubtitle.textContent = '趋势图、调度图、热力图与待办摘要在一个页面内联动展示。'
 
-  const highlightCards = [
-    { label: '车辆在线', value: '12', note: '调度同步中' },
-    { label: '高热站点', value: '06', note: '早晚高峰明显' },
-    { label: '今日呼叫', value: '18', note: '已同步司机端' },
-    { label: '资格待办', value: '12', note: '共享电动车审核' },
-  ]
-
-  const route = dispatchRoutes.find((item) => item.id === appState.selectedRouteId) || dispatchRoutes[0]
-  const period = heatmapPeriods.find((item) => item.id === appState.selectedHeatPeriodId) || heatmapPeriods[0]
+  const route = getRoute(appState.selectedRouteId)
+  const period = getHeatPeriod(appState.selectedHeatPeriodId)
 
   if (workspace) {
     workspace.innerHTML = `
       <div class="workspace-summary">
-        ${highlightCards
-          .map(
-            (card) => `
-              <article class="summary-card">
-                <div class="summary-label">${card.label}</div>
-                <div class="summary-value">${card.value}</div>
-                <div class="summary-note">${card.note}</div>
-              </article>
-            `,
-          )
-          .join('')}
+        <article class="summary-card">
+          <div class="summary-label">车辆在线</div>
+          <div class="summary-value">12</div>
+          <div class="summary-note">调度同步中</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">高热站点</div>
+          <div class="summary-value">06</div>
+          <div class="summary-note">早晚高峰明显</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">今日呼叫</div>
+          <div class="summary-value">18</div>
+          <div class="summary-note">已同步司机端</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">资格待办</div>
+          <div class="summary-value">12</div>
+          <div class="summary-note">共享电动车审核</div>
+        </article>
+      </div>
+
+      <div class="dashboard-visual-grid">
+        <section class="dashboard-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">近 7 日趋势</div>
+              <div class="panel-subtitle">订单、呼叫和退款的固定数据走势。</div>
+            </div>
+            <div class="panel-action" data-dashboard-action="module" data-target="orders">展开订单</div>
+          </div>
+          <div id="dashboardTrendChart" style="height: 320px;"></div>
+        </section>
+
+        <section class="dashboard-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">线路负载</div>
+              <div class="panel-subtitle">从固定数据中看车辆满载和空座分布。</div>
+            </div>
+            <div class="panel-action" data-dashboard-action="module" data-target="vehicles">展开车辆</div>
+          </div>
+          <div id="dashboardLoadChart" style="height: 320px;"></div>
+        </section>
       </div>
 
       <div class="dashboard-visual-grid">
@@ -1264,11 +1800,10 @@ function renderDashboardWorkspace(module) {
           <div class="panel-header">
             <div>
               <div class="panel-title">地图调度</div>
-              <div class="panel-subtitle">校园路线、车辆位置和调度动作实时展示。</div>
+              <div class="panel-subtitle">校园路线、车辆位置和站点热度同屏展示。</div>
             </div>
             <div class="panel-action" data-dashboard-action="module" data-target="dispatch-map">展开调度</div>
           </div>
-
           <div class="mini-tab-row">
             ${dispatchRoutes
               .map(
@@ -1280,24 +1815,7 @@ function renderDashboardWorkspace(module) {
               )
               .join('')}
           </div>
-
-          <div class="dispatch-map" style="margin-top: 14px; min-height: 360px;">
-            <div class="dispatch-route-line"></div>
-            <div class="dispatch-route-line secondary"></div>
-            <div class="dispatch-route-line tertiary"></div>
-            ${route.stops
-              .map(
-                (stop) => `
-                  <div class="dispatch-node ${stop.hot ? 'is-hot' : ''}" style="left:${stop.x}%; top:${stop.y}%"></div>
-                  <div class="dispatch-marker" style="left:${stop.x}%; top:${stop.y}%">
-                    <div class="dispatch-marker-label">${stop.name}</div>
-                    <div class="dispatch-marker-value">${stop.note}</div>
-                  </div>
-                `,
-              )
-              .join('')}
-          </div>
-
+          <div id="dashboardDispatchChart" style="height: 390px; margin-top: 14px;"></div>
           <div class="detail-card" style="margin-top: 14px;">
             <div class="detail-title">${route.title}</div>
             <div class="detail-copy">${route.summary}</div>
@@ -1314,11 +1832,10 @@ function renderDashboardWorkspace(module) {
           <div class="panel-header">
             <div>
               <div class="panel-title">候车热力图</div>
-              <div class="panel-subtitle">按时段切换热度，站点块会实时变化。</div>
+              <div class="panel-subtitle">按时段切换热度，颜色层会直接刷新。</div>
             </div>
             <div class="panel-action" data-dashboard-action="module" data-target="heatmap">展开热图</div>
           </div>
-
           <div class="mini-tab-row">
             ${heatmapPeriods
               .map(
@@ -1330,9 +1847,7 @@ function renderDashboardWorkspace(module) {
               )
               .join('')}
           </div>
-
-          <div style="margin-top: 14px;">${renderHeatmapMap(period, 'compact')}</div>
-
+          <div id="dashboardHeatmapChart" style="height: 390px; margin-top: 14px;"></div>
           <div class="heat-stats" style="margin-top: 14px;">
             <div class="section-title-inline">时段摘要</div>
             <div class="heat-stats-row">
@@ -1368,22 +1883,18 @@ function renderDashboardWorkspace(module) {
           .join('')}
       </div>
 
-      <div class="workspace-foot">地图和热力图已经放在总览首页，点击条目即可切换线路和时段。</div>
+      <div class="workspace-foot">地图、热力图和趋势图已经放在总览首页，点击条目即可切换线路和时段。</div>
     `
 
     workspace.querySelectorAll('[data-dashboard-route-id]').forEach((button) => {
       button.addEventListener('click', () => {
-        appState.selectedRouteId = button.getAttribute('data-dashboard-route-id') || route.id
-        appState.lastAction = `首页已切换到 ${dispatchRoutes.find((item) => item.id === appState.selectedRouteId)?.title || route.title}`
-        renderModule('dashboard')
+        selectRoute(button.getAttribute('data-dashboard-route-id') || route.id, '首页已切换线路')
       })
     })
 
     workspace.querySelectorAll('[data-dashboard-heat-id]').forEach((button) => {
       button.addEventListener('click', () => {
-        appState.selectedHeatPeriodId = button.getAttribute('data-dashboard-heat-id') || period.id
-        appState.lastAction = `首页热力图已切换到 ${heatmapPeriods.find((item) => item.id === appState.selectedHeatPeriodId)?.label || period.label}`
-        renderModule('dashboard')
+        selectHeatPeriod(button.getAttribute('data-dashboard-heat-id') || period.id, '首页已切换热力时段')
       })
     })
 
@@ -1396,7 +1907,8 @@ function renderDashboardWorkspace(module) {
 }
 
 function renderDispatchWorkspace() {
-  const route = dispatchRoutes.find((item) => item.id === appState.selectedRouteId) || dispatchRoutes[0]
+  const route = getRoute(appState.selectedRouteId)
+  const period = getHeatPeriod(appState.selectedHeatPeriodId)
   if (workspaceTitle) workspaceTitle.textContent = '地图调度看板'
   if (workspaceSubtitle) workspaceSubtitle.textContent = '车辆、线路、站点和调度动作联动演示。'
 
@@ -1415,22 +1927,7 @@ function renderDispatchWorkspace() {
       <div class="dispatch-shell">
         <div>
           <div class="route-selector">${routeButtons}</div>
-          <div class="dispatch-map" style="margin-top: 14px;">
-            <div class="dispatch-route-line"></div>
-            <div class="dispatch-route-line secondary"></div>
-            <div class="dispatch-route-line tertiary"></div>
-            ${route.stops
-              .map(
-                (stop) => `
-                  <div class="dispatch-node ${stop.hot ? 'is-hot' : ''}" style="left:${stop.x}%; top:${stop.y}%"></div>
-                  <div class="dispatch-marker ${route.markerTone}" style="left:${stop.x}%; top:${stop.y}%">
-                    <div class="dispatch-marker-label">${stop.name}</div>
-                    <div class="dispatch-marker-value">${stop.note}</div>
-                  </div>
-                `,
-              )
-              .join('')}
-          </div>
+          <div id="dispatchChart" style="margin-top: 14px; min-height: 560px; width: 100%;"></div>
         </div>
 
         <div class="route-detail">
@@ -1456,6 +1953,24 @@ function renderDispatchWorkspace() {
             </div>
           </div>
 
+          <div class="heat-stats">
+            <div class="section-title-inline">联动概览</div>
+            <div class="heat-stats-row">
+              <div class="heat-stat">
+                <div class="heat-stat-label">当前时段</div>
+                <div class="heat-stat-value">${period.label}</div>
+              </div>
+              <div class="heat-stat">
+                <div class="heat-stat-label">当前站点</div>
+                <div class="heat-stat-value">${appState.selectedStationName}</div>
+              </div>
+              <div class="heat-stat">
+                <div class="heat-stat-label">当前车辆</div>
+                <div class="heat-stat-value">${route.bus}</div>
+              </div>
+            </div>
+          </div>
+
           <div class="dispatch-log">
             <div class="section-title-inline">调度动态</div>
             ${route.events
@@ -1478,9 +1993,7 @@ function renderDispatchWorkspace() {
 
     workspace.querySelectorAll('[data-route-id]').forEach((button) => {
       button.addEventListener('click', () => {
-        appState.selectedRouteId = button.getAttribute('data-route-id') || route.id
-        appState.lastAction = `已切换到 ${dispatchRoutes.find((item) => item.id === appState.selectedRouteId)?.title || route.title}`
-        renderModule('dispatch-map')
+        selectRoute(button.getAttribute('data-route-id') || route.id, '已切换调度线路')
       })
     })
 
@@ -1494,7 +2007,7 @@ function renderDispatchWorkspace() {
 }
 
 function renderHeatmapWorkspace() {
-  const period = heatmapPeriods.find((item) => item.id === appState.selectedHeatPeriodId) || heatmapPeriods[0]
+  const period = getHeatPeriod(appState.selectedHeatPeriodId)
   if (workspaceTitle) workspaceTitle.textContent = '候车热力图'
   if (workspaceSubtitle) workspaceSubtitle.textContent = '按时段查看站点热度、优先级和调度建议。'
 
@@ -1511,7 +2024,9 @@ function renderHeatmapWorkspace() {
         .join('')}</div>
 
       <div class="heat-section" style="margin-top: 14px;">
-        ${renderHeatmapMap(period, 'full')}
+        <div class="heatmap-board">
+          <div id="heatmapChart" style="min-height: 560px; width: 100%;"></div>
+        </div>
 
         <div class="heat-detail">
           <div class="heat-stats">
@@ -1535,16 +2050,16 @@ function renderHeatmapWorkspace() {
             <div class="detail-copy">根据当前热度，系统会给出调度和加车建议。</div>
             <div class="heat-station-list" style="margin-top: 14px;">
               ${period.mapPoints
-                .slice(0, 4)
+                .slice(0, 6)
                 .map(
                   (station) => `
-                    <div class="heat-station">
+                    <button class="heat-station" data-station-name="${station.name}" style="width: 100%; text-align: left; border: 0; cursor: pointer;">
                       <div class="heat-station-top">
                         <span>${station.name}</span>
                         <span>${station.count}</span>
                       </div>
                       <div class="heat-station-meta">${station.note}</div>
-                    </div>
+                    </button>
                   `,
                 )
                 .join('')}
@@ -1566,9 +2081,7 @@ function renderHeatmapWorkspace() {
 
     workspace.querySelectorAll('[data-heat-id]').forEach((button) => {
       button.addEventListener('click', () => {
-        appState.selectedHeatPeriodId = button.getAttribute('data-heat-id') || period.id
-        appState.lastAction = `已切换到 ${heatmapPeriods.find((item) => item.id === appState.selectedHeatPeriodId)?.label || period.label}`
-        renderModule('heatmap')
+        selectHeatPeriod(button.getAttribute('data-heat-id') || period.id, '已切换热力时段')
       })
     })
 
@@ -1576,6 +2089,12 @@ function renderHeatmapWorkspace() {
       button.addEventListener('click', () => {
         appState.lastAction = `热力图：${button.getAttribute('data-heat-action')}`
         renderModule('heatmap')
+      })
+    })
+
+    workspace.querySelectorAll('[data-station-name]').forEach((button) => {
+      button.addEventListener('click', () => {
+        selectStation(button.getAttribute('data-station-name') || period.mapPoints[0].name, '已聚焦候车站点')
       })
     })
   }
@@ -1586,6 +2105,8 @@ function renderGenericWorkspace(module) {
   if (workspaceSubtitle) workspaceSubtitle.textContent = `${module.label} 的固定数据工作区。`
 
   if (workspace) {
+    const currentFilter = getModuleTableFilter(module.id)
+    const filteredRows = filterTableRows(module.tableRows, currentFilter)
     const cardsHtml = module.cards
       .map(
         (card) => `
@@ -1615,13 +2136,135 @@ function renderGenericWorkspace(module) {
           )
           .join('')}
       </div>
+      <div class="detail-card" style="margin-bottom: 16px;">
+        <div class="detail-title">快速筛选</div>
+        <div class="detail-copy">固定数据演示支持按状态切换视图，并保留当前筛选反馈。</div>
+        <div class="mini-tab-row" style="margin-top: 12px;">
+          ${[
+            ['all', '全部'],
+            ['active', '运行中'],
+            ['pending', '待处理'],
+            ['warning', '异常/冻结'],
+            ['done', '已完成'],
+          ]
+            .map(
+              ([key, label]) => `
+                <button class="mini-chip ${currentFilter === key ? 'is-active' : ''}" data-module-filter="${key}">
+                  ${label}
+                </button>
+              `,
+            )
+            .join('')}
+        </div>
+        <div class="detail-actions" style="margin-top: 12px;">
+          <button class="action-button is-primary" data-module-action="refresh">刷新视图</button>
+          <button class="action-button" data-module-action="export">导出当前页</button>
+          <button class="action-button" data-module-action="detail">查看详情</button>
+        </div>
+      </div>
       <div class="mini-card-grid">${cardsHtml}</div>
-      <div class="workspace-foot">本模块支持切换卡片、查看右侧摘要和表格。</div>
+      <div class="detail-card" style="margin-top: 16px;">
+        <div class="detail-title">数据表</div>
+        <div class="detail-copy">当前筛选结果：${filteredRows.length} 条记录。</div>
+        <div class="table-wrap" style="margin-top: 12px;">
+          <table class="data-table">
+            <thead>
+              <tr>${module.tableHeaders.map((header) => `<th>${header}</th>`).join('')}</tr>
+            </thead>
+            <tbody>
+              ${filteredRows
+                .map(
+                  (row) => `
+                    <tr>
+                      <td>${row[0]}</td>
+                      <td>${row[1]}</td>
+                      <td><span class="table-badge ${getBadgeTone(row[2])}">${row[2]}</span></td>
+                    </tr>
+                  `,
+                )
+                .join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="workspace-foot">本模块支持切换筛选、查看右侧摘要和固定表格结果。</div>
     `
+
+    workspace.querySelectorAll('[data-module-filter]').forEach((button) => {
+      button.addEventListener('click', () => {
+        setModuleTableFilter(module.id, button.getAttribute('data-module-filter') || 'all')
+      })
+    })
+
+    workspace.querySelectorAll('[data-module-action]').forEach((button) => {
+      button.addEventListener('click', () => {
+        handleAction(button.dataset.moduleAction || 'detail', '', '')
+      })
+    })
   }
 }
 
+function mountModuleCharts(moduleId, token) {
+  requestAnimationFrame(() => {
+    if (token !== renderSeq) {
+      return
+    }
+
+    const route = getRoute(appState.selectedRouteId)
+    const period = getHeatPeriod(appState.selectedHeatPeriodId)
+
+    if (moduleId === 'dashboard') {
+      initChart('dashboardTrendChart', buildTrendOption())
+      initChart('dashboardLoadChart', buildRouteLoadOption())
+      initChart('dashboardDispatchChart', buildDispatchOption(route, period, true), (chart) => {
+        chart.on('click', (params) => {
+          if (params.data && params.data.name) {
+            selectStation(params.data.name, `首页已聚焦站点 ${params.data.name}`)
+          }
+        })
+      })
+      initChart('dashboardHeatmapChart', buildHeatmapOption(period, true), (chart) => {
+        chart.on('click', (params) => {
+          if (Array.isArray(params.value)) {
+            const stationName = period.mapPoints[params.value[0]]?.name
+            if (stationName) {
+              selectStation(stationName, `首页已聚焦站点 ${stationName}`)
+            }
+          }
+        })
+      })
+      return
+    }
+
+    if (moduleId === 'dispatch-map') {
+      initChart('dispatchChart', buildDispatchOption(route, period, false), (chart) => {
+        chart.on('click', (params) => {
+          if (params.data && params.data.name) {
+            selectStation(params.data.name, `已聚焦站点 ${params.data.name}`)
+          }
+        })
+      })
+      return
+    }
+
+    if (moduleId === 'heatmap') {
+      initChart('heatmapChart', buildHeatmapOption(period, false), (chart) => {
+        chart.on('click', (params) => {
+          if (Array.isArray(params.value)) {
+            const stationName = period.mapPoints[params.value[0]]?.name
+            if (stationName) {
+              selectStation(stationName, `已聚焦站点 ${stationName}`)
+            }
+          }
+        })
+      })
+    }
+  })
+}
+
 function renderModule(id) {
+  renderSeq += 1
+  disposeCharts()
   const module = modules.find((item) => item.id === id) || modules[0]
   appState.activeModuleId = module.id
 
@@ -1644,7 +2287,29 @@ function renderModule(id) {
     renderGenericWorkspace(module)
   }
 
+  mountModuleCharts(module.id, renderSeq)
   renderNav(module.id)
 }
 
-renderModule('dashboard')
+async function bootstrapApp() {
+  try {
+    await ensureEcharts()
+    renderModule('dashboard')
+    window.addEventListener('resize', resizeCharts)
+  } catch (error) {
+    console.error(error)
+    if (workspace) {
+      workspace.innerHTML = `
+        <div class="empty-state">
+          图表引擎加载失败，当前只能显示静态框架。
+        </div>
+      `
+    }
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootstrapApp, { once: true })
+} else {
+  bootstrapApp()
+}
