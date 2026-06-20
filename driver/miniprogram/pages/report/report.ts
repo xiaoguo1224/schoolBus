@@ -1,4 +1,4 @@
-import { driverPages, reportReasons, summaryBanners } from '../../mock/driver'
+import { driverPages, driverTabPaths, reportReasons, summaryBanners } from '../../mock/driver'
 
 Page({
   data: {
@@ -23,7 +23,11 @@ Page({
   onNavigate(e: WechatMiniprogram.BaseEvent) {
     const url = e.currentTarget.dataset.url as string | undefined
     if (url && url !== this.data.currentPath) {
-      wx.redirectTo({ url })
+      if (driverTabPaths.has(url)) {
+        wx.switchTab({ url })
+      } else {
+        wx.redirectTo({ url })
+      }
     }
   },
   onReportTap(e: WechatMiniprogram.BaseEvent) {

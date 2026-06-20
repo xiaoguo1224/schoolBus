@@ -15,18 +15,6 @@
           <view wx:for="{{summaryBanners}}" wx:key="index" class="banner-pill">{{item}}</view>
         </view>
 
-        <view class="driver-nav-grid">
-          <view
-            wx:for="{{driverPages}}"
-            wx:key="key"
-            class="driver-nav-item {{activePage === item.key ? 'is-active' : ''}}"
-            data-url="{{item.path}}"
-            bindtap="onNavigate"
-          >
-            <text class="driver-nav-label">{{item.label}}</text>
-            <text class="driver-nav-hint">{{item.hint}}</text>
-          </view>
-        </view>
       </view>
 
       <view class="report-grid">

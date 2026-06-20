@@ -69,7 +69,7 @@ Page({
     })
   },
   onMapTap() {
-    wx.navigateTo({
+    wx.switchTab({
       url: '/pages/map/index',
     })
   },

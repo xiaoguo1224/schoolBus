@@ -1,4 +1,4 @@
-import { driverPages, vehicleChecks, vehicleProfile } from '../../mock/driver'
+import { driverPages, driverTabPaths, vehicleChecks, vehicleProfile } from '../../mock/driver'
 
 Page({
   data: {
@@ -20,7 +20,11 @@ Page({
   onNavigate(e: WechatMiniprogram.BaseEvent) {
     const url = e.currentTarget.dataset.url as string | undefined
     if (url && url !== this.data.currentPath) {
-      wx.redirectTo({ url })
+      if (driverTabPaths.has(url)) {
+        wx.switchTab({ url })
+      } else {
+        wx.redirectTo({ url })
+      }
     }
   },
   onVehicleAction(e: WechatMiniprogram.BaseEvent) {

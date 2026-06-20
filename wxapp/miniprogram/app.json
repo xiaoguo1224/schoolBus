@@ -7,11 +7,35 @@
     "pages/reserve/index",
     "pages/mine/index"
   ],
+  "tabBar": {
+    "color": "#7b8c79",
+    "selectedColor": "#2f7f47",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/schedule/index",
+        "text": "班次"
+      },
+      {
+        "pagePath": "pages/map/index",
+        "text": "地图"
+      },
+      {
+        "pagePath": "pages/mine/index",
+        "text": "我的"
+      }
+    ]
+  },
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "智慧通勤",
-    "navigationBarBackgroundColor": "#eff9eb",
-    "navigationStyle": "custom"
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f6faf3"
   },
   "style": "v2",
   "componentFramework": "glass-easel",

@@ -204,6 +204,4 @@
       <view class="safe-bottom"></view>
     </view>
   </scroll-view>
-
-  <footer-nav activeKey="home" />
 </view>

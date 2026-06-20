@@ -69,6 +69,14 @@ export const driverPages: DriverPageLink[] = [
   { key: 'logs', label: '流水记录', hint: '行程与考勤', path: '/pages/logs/logs' },
 ]
 
+export const driverTabPaths = new Set([
+  '/pages/index/index',
+  '/pages/tasks/tasks',
+  '/pages/vehicle/vehicle',
+  '/pages/trip/trip',
+  '/pages/logs/logs',
+])
+
 export const todayTasks: DriverTask[] = [
   {
     id: 'task-1',

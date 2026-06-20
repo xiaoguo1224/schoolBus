@@ -11,18 +11,6 @@
           <view class="driver-status">准点率 96%</view>
         </view>
 
-        <view class="driver-nav-grid">
-          <view
-            wx:for="{{driverPages}}"
-            wx:key="key"
-            class="driver-nav-item {{activePage === item.key ? 'is-active' : ''}}"
-            data-url="{{item.path}}"
-            bindtap="onNavigate"
-          >
-            <text class="driver-nav-label">{{item.label}}</text>
-            <text class="driver-nav-hint">{{item.hint}}</text>
-          </view>
-        </view>
       </view>
 
       <view class="attendance-grid">

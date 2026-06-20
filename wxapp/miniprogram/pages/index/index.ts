@@ -7,6 +7,13 @@ const ebikeQuickActions = [
   { key: 'bike', label: '车辆查看', shortLabel: '车', hint: '附近车辆、电量和状态', pagePath: '/pages/mine/index', tone: 'violet' as const },
 ]
 
+const tabPages = new Set([
+  '/pages/index/index',
+  '/pages/schedule/index',
+  '/pages/map/index',
+  '/pages/mine/index',
+])
+
 Page({
   data: {
     topInset: 24,
@@ -48,6 +55,10 @@ Page({
     if (!path) {
       return
     }
+    if (tabPages.has(path)) {
+      wx.switchTab({ url: path })
+      return
+    }
     wx.navigateTo({ url: path })
   },
   onTripTap(e: any) {
@@ -59,7 +70,7 @@ Page({
     })
   },
   onMapTap() {
-    wx.navigateTo({
+    wx.switchTab({
       url: '/pages/map/index',
     })
   },

@@ -8,10 +8,38 @@
     "pages/attendance/attendance",
     "pages/logs/logs"
   ],
+  "tabBar": {
+    "color": "#6f84a6",
+    "selectedColor": "#2f69d8",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/tasks/tasks",
+        "text": "任务"
+      },
+      {
+        "pagePath": "pages/vehicle/vehicle",
+        "text": "车辆"
+      },
+      {
+        "pagePath": "pages/trip/trip",
+        "text": "行程"
+      },
+      {
+        "pagePath": "pages/logs/logs",
+        "text": "记录"
+      }
+    ]
+  },
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "司机端",
-    "navigationBarBackgroundColor": "#f5f8ff",
+    "navigationBarBackgroundColor": "#ffffff",
     "backgroundColor": "#f5f8ff"
   },
   "style": "v2",
