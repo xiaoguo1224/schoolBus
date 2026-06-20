@@ -1,12 +1,7 @@
-/** app.wxss */
 page {
   height: 100%;
-  background:
-    radial-gradient(circle at top left, rgba(77, 129, 255, 0.14), transparent 30%),
-    radial-gradient(circle at top right, rgba(255, 179, 92, 0.18), transparent 28%),
-    linear-gradient(180deg, #f5f8ff 0%, #f9fbff 42%, #eef4fb 100%);
-  color: #15304a;
-  font-family: PingFang SC, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f8fc;
+  color: #17324b;
 }
 
 .app-shell {
@@ -18,6 +13,7 @@ page {
 .content-scroll {
   flex: 1;
   height: 100vh;
+  background: #f5f8fc;
 }
 
 .page-body {
@@ -26,11 +22,9 @@ page {
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.94);
-  border: 1rpx solid rgba(89, 123, 170, 0.12);
-  border-radius: 32rpx;
-  box-shadow: 0 20rpx 48rpx rgba(58, 92, 131, 0.08);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
+  border: 1rpx solid rgba(82, 112, 152, 0.08);
+  border-radius: 24rpx;
 }
 
 .section-header {
@@ -44,18 +38,18 @@ page {
 .section-title {
   font-size: 34rpx;
   font-weight: 900;
-  color: #15304a;
+  color: #17324b;
 }
 
 .section-subtitle {
   margin-top: 8rpx;
   font-size: 22rpx;
-  color: #6b7f98;
+  color: #6c7f95;
   line-height: 1.5;
 }
 
 .muted {
-  color: #6b7f98;
+  color: #6c7f95;
 }
 
 .pill {
@@ -64,8 +58,8 @@ page {
   gap: 8rpx;
   padding: 10rpx 16rpx;
   border-radius: 999rpx;
-  background: rgba(77, 129, 255, 0.1);
-  color: #3056c9;
+  background: #edf4ff;
+  color: #2f62d9;
   font-size: 22rpx;
   font-weight: 700;
 }
@@ -83,12 +77,12 @@ page {
 }
 
 .primary-button {
-  background: linear-gradient(135deg, #4d81ff, #2f69d8);
-  color: #fff;
+  background: #2f69d8;
+  color: #ffffff;
 }
 
 .ghost-button {
-  background: #f4f7fc;
+  background: #f4f7fb;
   color: #2b4968;
 }
 
@@ -112,14 +106,14 @@ page {
 .stat-card {
   padding: 20rpx 18rpx;
   border-radius: 24rpx;
-  background: linear-gradient(180deg, #fbfdff 0%, #eef4fb 100%);
-  border: 1rpx solid rgba(89, 123, 170, 0.12);
+  background: #fbfcfe;
+  border: 1rpx solid rgba(82, 112, 152, 0.08);
 }
 
 .stat-label {
   display: block;
   font-size: 20rpx;
-  color: #7386a0;
+  color: #74859a;
 }
 
 .stat-value {
@@ -127,14 +121,14 @@ page {
   margin-top: 8rpx;
   font-size: 30rpx;
   font-weight: 900;
-  color: #14304b;
+  color: #17324b;
 }
 
 .stat-hint {
   display: block;
   margin-top: 4rpx;
   font-size: 20rpx;
-  color: #6b7f98;
+  color: #6c7f95;
 }
 
 .safe-bottom {
@@ -152,10 +146,7 @@ page {
 
 .driver-page-hero {
   padding: 28rpx;
-  background:
-    radial-gradient(circle at top right, rgba(77, 129, 255, 0.16), transparent 28%),
-    radial-gradient(circle at bottom left, rgba(255, 179, 92, 0.18), transparent 26%),
-    linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
+  background: #fdfefe;
 }
 
 .driver-hero-top {
@@ -167,7 +158,7 @@ page {
 
 .driver-kicker {
   font-size: 22rpx;
-  color: #6a7f99;
+  color: #6c7f95;
   font-weight: 800;
 }
 
@@ -175,13 +166,13 @@ page {
   margin-top: 8rpx;
   font-size: 42rpx;
   font-weight: 900;
-  color: #16314d;
+  color: #17324b;
 }
 
 .driver-subtitle {
   margin-top: 10rpx;
   font-size: 24rpx;
-  color: #6b7f98;
+  color: #6c7f95;
   line-height: 1.5;
 }
 
@@ -189,7 +180,7 @@ page {
   flex: none;
   padding: 10rpx 16rpx;
   border-radius: 999rpx;
-  background: rgba(77, 129, 255, 0.12);
+  background: #e9f1ff;
   color: #2f62d9;
   font-size: 22rpx;
   font-weight: 800;
@@ -230,13 +221,13 @@ page {
 .panel-title {
   font-size: 30rpx;
   font-weight: 900;
-  color: #17314b;
+  color: #17324b;
 }
 
 .panel-subtitle {
   margin-top: 8rpx;
   font-size: 22rpx;
-  color: #6b7f98;
+  color: #6c7f95;
   line-height: 1.5;
 }
 
