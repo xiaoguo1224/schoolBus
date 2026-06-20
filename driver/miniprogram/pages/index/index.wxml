@@ -35,6 +35,8 @@
             <text class="view-tab-hint">{{item.hint}}</text>
           </view>
         </view>
+
+        <view class="view-tip">点上面的标签切换不同页面，当前只显示对应模块内容。</view>
       </view>
 
       <view wx:if="{{activeView === 'dashboard'}}" class="dashboard-grid">
@@ -314,7 +316,7 @@
         </view>
       </view>
 
-      <view class="feed-grid">
+      <view wx:if="{{activeView === 'dashboard' || activeView === 'attendance'}}" class="feed-grid">
         <view class="panel card feed-panel">
           <view class="panel-header">
             <view>

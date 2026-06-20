@@ -1125,14 +1125,17 @@ function renderRail(module) {
 
 function renderDashboardWorkspace(module) {
   if (workspaceTitle) workspaceTitle.textContent = '运营总览'
-  if (workspaceSubtitle) workspaceSubtitle.textContent = '总览页可直接进入地图调度和候车热力图。'
+  if (workspaceSubtitle) workspaceSubtitle.textContent = '地图调度和热力图直接显示在总览首页，便于演示。'
 
   const highlightCards = [
-    { label: '地图调度', value: '12 车在线', note: '点击进入调度视图' },
-    { label: '热力图', value: '06 热点', note: '查看高热站点' },
-    { label: '订单管理', value: '124 单', note: '扫码订单与退款' },
-    { label: '资格管理', value: '128 人', note: '共享电动车资格' },
+    { label: '车辆在线', value: '12', note: '调度同步中' },
+    { label: '高热站点', value: '06', note: '早晚高峰明显' },
+    { label: '今日呼叫', value: '18', note: '已同步司机端' },
+    { label: '资格待办', value: '12', note: '共享电动车审核' },
   ]
+
+  const route = dispatchRoutes.find((item) => item.id === appState.selectedRouteId) || dispatchRoutes[0]
+  const period = heatmapPeriods.find((item) => item.id === appState.selectedHeatPeriodId) || heatmapPeriods[0]
 
   if (workspace) {
     workspace.innerHTML = `
@@ -1149,6 +1152,113 @@ function renderDashboardWorkspace(module) {
           )
           .join('')}
       </div>
+
+      <div class="dashboard-visual-grid">
+        <section class="dashboard-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">地图调度</div>
+              <div class="panel-subtitle">校园路线、车辆位置和调度动作实时展示。</div>
+            </div>
+            <div class="panel-action" data-dashboard-action="module" data-target="dispatch-map">展开调度</div>
+          </div>
+
+          <div class="mini-tab-row">
+            ${dispatchRoutes
+              .map(
+                (item) => `
+                  <button class="mini-chip ${item.id === route.id ? 'is-active' : ''}" data-dashboard-route-id="${item.id}">
+                    ${item.title}
+                  </button>
+                `,
+              )
+              .join('')}
+          </div>
+
+          <div class="dispatch-map" style="margin-top: 14px; min-height: 360px;">
+            <div class="dispatch-route-line"></div>
+            <div class="dispatch-route-line secondary"></div>
+            <div class="dispatch-route-line tertiary"></div>
+            ${route.stops
+              .map(
+                (stop) => `
+                  <div class="dispatch-node ${stop.hot ? 'is-hot' : ''}" style="left:${stop.x}%; top:${stop.y}%"></div>
+                  <div class="dispatch-marker" style="left:${stop.x}%; top:${stop.y}%">
+                    <div class="dispatch-marker-label">${stop.name}</div>
+                    <div class="dispatch-marker-value">${stop.note}</div>
+                  </div>
+                `,
+              )
+              .join('')}
+          </div>
+
+          <div class="detail-card" style="margin-top: 14px;">
+            <div class="detail-title">${route.title}</div>
+            <div class="detail-copy">${route.summary}</div>
+            <div class="detail-meta">
+              <div class="detail-meta-item">车辆 ${route.bus}</div>
+              <div class="detail-meta-item">ETA ${route.eta}</div>
+              <div class="detail-meta-item">空座 ${route.occupancy}</div>
+              <div class="detail-meta-item">状态 ${route.status}</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">候车热力图</div>
+              <div class="panel-subtitle">按时段切换热度，站点块会实时变化。</div>
+            </div>
+            <div class="panel-action" data-dashboard-action="module" data-target="heatmap">展开热图</div>
+          </div>
+
+          <div class="mini-tab-row">
+            ${heatmapPeriods
+              .map(
+                (item) => `
+                  <button class="mini-chip ${item.id === period.id ? 'is-active' : ''}" data-dashboard-heat-id="${item.id}">
+                    ${item.label}
+                  </button>
+                `,
+              )
+              .join('')}
+          </div>
+
+          <div class="heatmap-board" style="margin-top: 14px; min-height: 360px;">
+            <div class="heat-grid" style="position: relative; z-index: 1; padding: 18px;">
+              ${period.cells
+                .map(
+                  (cell) => `
+                    <div class="heat-cell level-${cell.level}">
+                      <div class="heat-cell-label">${cell.name}</div>
+                      <div class="heat-cell-value">${cell.count}</div>
+                      <div class="heat-cell-note">${cell.note}</div>
+                    </div>
+                  `,
+                )
+                .join('')}
+            </div>
+          </div>
+
+          <div class="heat-stats" style="margin-top: 14px;">
+            <div class="section-title-inline">时段摘要</div>
+            <div class="heat-stats-row">
+              ${period.stats
+                .map(
+                  (stat) => `
+                    <div class="heat-stat">
+                      <div style="font-size: 11px; color: #6d8097;">${stat.label}</div>
+                      <div style="margin-top: 6px; font-size: 18px; font-weight: 900;">${stat.value}</div>
+                    </div>
+                  `,
+                )
+                .join('')}
+            </div>
+          </div>
+        </section>
+      </div>
+
       <div class="mini-card-grid">
         ${module.cards
           .slice(0, 4)
@@ -1165,8 +1275,31 @@ function renderDashboardWorkspace(module) {
           )
           .join('')}
       </div>
-      <div class="workspace-foot">点击左侧“地图调度”或“候车热力图”即可进入更具体的演示工作区。</div>
+
+      <div class="workspace-foot">地图和热力图已经放在总览首页，点击条目即可切换线路和时段。</div>
     `
+
+    workspace.querySelectorAll('[data-dashboard-route-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        appState.selectedRouteId = button.getAttribute('data-dashboard-route-id') || route.id
+        appState.lastAction = `首页已切换到 ${dispatchRoutes.find((item) => item.id === appState.selectedRouteId)?.title || route.title}`
+        renderModule('dashboard')
+      })
+    })
+
+    workspace.querySelectorAll('[data-dashboard-heat-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        appState.selectedHeatPeriodId = button.getAttribute('data-dashboard-heat-id') || period.id
+        appState.lastAction = `首页热力图已切换到 ${heatmapPeriods.find((item) => item.id === appState.selectedHeatPeriodId)?.label || period.label}`
+        renderModule('dashboard')
+      })
+    })
+
+    workspace.querySelectorAll('[data-dashboard-action]').forEach((button) => {
+      button.addEventListener('click', () => {
+        handleAction(button.dataset.action || '', button.dataset.target || '', button.dataset.value || '')
+      })
+    })
   }
 }
 
