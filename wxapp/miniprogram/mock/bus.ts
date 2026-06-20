@@ -1,12 +1,3 @@
-export type PageKey = 'home' | 'route' | 'map' | 'ride' | 'mine'
-
-export interface NavItem {
-  key: PageKey
-  label: string
-  shortLabel: string
-  pagePath: string
-}
-
 export interface QuickAction {
   key: string
   label: string
@@ -100,13 +91,6 @@ export interface ServiceItem {
   hint: string
   pagePath: string
 }
-
-export const navItems: NavItem[] = [
-  { key: 'home', label: '首页', shortLabel: '首', pagePath: '/pages/index/index' },
-  { key: 'route', label: '线路', shortLabel: '线', pagePath: '/pages/schedule/index' },
-  { key: 'map', label: '地图', shortLabel: '图', pagePath: '/pages/map/index' },
-  { key: 'mine', label: '我的', shortLabel: '我', pagePath: '/pages/mine/index' },
-]
 
 export const campuses = ['湘潭大学', '北校区', '南校区']
 
