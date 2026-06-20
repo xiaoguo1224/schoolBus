@@ -1,0 +1,104 @@
+<view class="app-shell">
+  <scroll-view class="content-scroll" scroll-y>
+    <view class="driver-page-shell vehicle-page" style="padding-top: {{topInset}}px;">
+      <view class="driver-page-hero card">
+        <view class="driver-hero-top">
+          <view>
+            <view class="driver-kicker">司机小程序 · 独立页面</view>
+            <view class="driver-title">车辆绑定</view>
+            <view class="driver-subtitle">{{driverName}} · {{driverRole}}</view>
+          </view>
+          <view class="driver-status">已绑定</view>
+        </view>
+
+        <view class="driver-nav-grid">
+          <view
+            wx:for="{{driverPages}}"
+            wx:key="key"
+            class="driver-nav-item {{activePage === item.key ? 'is-active' : ''}}"
+            data-url="{{item.path}}"
+            bindtap="onNavigate"
+          >
+            <text class="driver-nav-label">{{item.label}}</text>
+            <text class="driver-nav-hint">{{item.hint}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="panel card">
+        <view class="panel-header">
+          <view>
+            <view class="panel-title">车辆概览</view>
+            <view class="panel-subtitle">绑定、检查和刷新状态都保留成可演示按钮。</view>
+          </view>
+          <view class="panel-action" data-action="bind" bindtap="onVehicleAction">绑定车辆</view>
+        </view>
+
+        <view class="vehicle-hero">
+          <view>
+            <view class="vehicle-id">{{vehicleProfile.plate}}</view>
+            <view class="vehicle-model">{{vehicleProfile.model}}</view>
+          </view>
+          <view class="vehicle-chip">{{vehicleProfile.bindStatus}}</view>
+        </view>
+
+        <view class="grid-2 vehicle-stats">
+          <view class="stat-card">
+            <text class="stat-label">车载状态</text>
+            <text class="stat-value">{{vehicleProfile.fuel}}</text>
+            <text class="stat-hint">{{vehicleProfile.maintenance}}</text>
+          </view>
+          <view class="stat-card">
+            <text class="stat-label">车辆信息</text>
+            <text class="stat-value">{{vehicleProfile.seatCount}}</text>
+            <text class="stat-hint">{{vehicleProfile.odometer}}</text>
+          </view>
+        </view>
+
+        <view class="vehicle-note">{{vehicleProfile.certification}}</view>
+
+        <view class="check-grid">
+          <view wx:for="{{vehicleChecks}}" wx:key="label" class="check-card">
+            <view class="check-label">{{item.label}}</view>
+            <view class="check-value">{{item.value}}</view>
+          </view>
+        </view>
+
+        <view class="action-row">
+          <view class="primary-button" data-action="inspect" bindtap="onVehicleAction">查看检查项</view>
+          <view class="ghost-button" data-action="refresh" bindtap="onVehicleAction">刷新状态</view>
+        </view>
+      </view>
+
+      <view class="feed-grid">
+        <view class="panel card">
+          <view class="panel-header">
+            <view>
+              <view class="panel-title">绑定说明</view>
+              <view class="panel-subtitle">用于演示车辆信息、状态和证照同步效果。</view>
+            </view>
+          </view>
+          <view class="notice-list">
+            <view class="notice-card">切换到首页或行程页后，顶部导航仍然保持可回退。</view>
+            <view class="notice-card">固定数据展示车辆绑定与保养状态。</view>
+          </view>
+        </view>
+
+        <view class="panel card">
+          <view class="panel-header">
+            <view>
+              <view class="panel-title">操作入口</view>
+              <view class="panel-subtitle">绑定完成后可继续去行程页执行发车流程。</view>
+            </view>
+          </view>
+          <view class="notice-list">
+            <view class="notice-card">点击「行程执行」进入发车、到站和结束演示页。</view>
+            <view class="notice-card">点击「流水记录」可查看考勤与历史。</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </view>
+  </scroll-view>
+</view>

@@ -1,0 +1,109 @@
+.vehicle-hero {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 20rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, rgba(77, 129, 255, 0.08), rgba(62, 184, 161, 0.1));
+}
+
+.vehicle-id {
+  font-size: 34rpx;
+  font-weight: 900;
+  color: #17314b;
+}
+
+.vehicle-model {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #5e7591;
+}
+
+.vehicle-chip {
+  margin-left: auto;
+  padding: 10rpx 14rpx;
+  border-radius: 999rpx;
+  background: #fff;
+  color: #2f62d9;
+  font-size: 20rpx;
+  font-weight: 800;
+}
+
+.vehicle-stats {
+  margin-top: 18rpx;
+}
+
+.vehicle-note {
+  margin-top: 18rpx;
+  padding: 16rpx 18rpx;
+  border-radius: 18rpx;
+  background: rgba(77, 129, 255, 0.08);
+  color: #35506f;
+  font-size: 20rpx;
+  line-height: 1.5;
+}
+
+.check-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.check-card {
+  padding: 18rpx;
+  border-radius: 22rpx;
+  background: #f5f8fd;
+  border: 1rpx solid rgba(89, 123, 170, 0.08);
+}
+
+.check-label {
+  display: block;
+  font-size: 20rpx;
+  color: #6b7f98;
+}
+
+.check-value {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  font-weight: 900;
+  color: #17314b;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12rpx;
+  margin-top: 18rpx;
+}
+
+.feed-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16rpx;
+  margin-top: 18rpx;
+}
+
+.notice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.notice-card {
+  padding: 18rpx 20rpx;
+  border-radius: 22rpx;
+  background: #f5f8fd;
+  border: 1rpx solid rgba(89, 123, 170, 0.08);
+  color: #5e7591;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+  .check-grid,
+  .feed-grid,
+  .action-row {
+    grid-template-columns: 1fr;
+  }
+}

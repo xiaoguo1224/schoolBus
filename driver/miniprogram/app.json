@@ -1,6 +1,11 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/tasks/tasks",
+    "pages/vehicle/vehicle",
+    "pages/trip/trip",
+    "pages/report/report",
+    "pages/attendance/attendance",
     "pages/logs/logs"
   ],
   "window": {

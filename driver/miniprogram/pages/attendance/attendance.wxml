@@ -1,0 +1,79 @@
+<view class="app-shell">
+  <scroll-view class="content-scroll" scroll-y>
+    <view class="driver-page-shell attendance-page" style="padding-top: {{topInset}}px;">
+      <view class="driver-page-hero card">
+        <view class="driver-hero-top">
+          <view>
+            <view class="driver-kicker">司机小程序 · 独立页面</view>
+            <view class="driver-title">考勤评价</view>
+            <view class="driver-subtitle">{{driverName}} · {{driverRole}}</view>
+          </view>
+          <view class="driver-status">准点率 96%</view>
+        </view>
+
+        <view class="driver-nav-grid">
+          <view
+            wx:for="{{driverPages}}"
+            wx:key="key"
+            class="driver-nav-item {{activePage === item.key ? 'is-active' : ''}}"
+            data-url="{{item.path}}"
+            bindtap="onNavigate"
+          >
+            <text class="driver-nav-label">{{item.label}}</text>
+            <text class="driver-nav-hint">{{item.hint}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="attendance-grid">
+        <view class="panel card">
+          <view class="panel-header">
+            <view>
+              <view class="panel-title">考勤摘要</view>
+              <view class="panel-subtitle">打卡、开始、结束与评分都放在一起。</view>
+            </view>
+            <view class="panel-action" bindtap="onOpenLogs">打开记录</view>
+          </view>
+
+          <view class="grid-3">
+            <view wx:for="{{attendanceStats}}" wx:key="label" class="stat-card">
+              <text class="stat-label">{{item.label}}</text>
+              <text class="stat-value">{{item.value}}</text>
+              <text class="stat-hint">固定演示数据</text>
+            </view>
+          </view>
+
+          <view class="notice-list">
+            <view class="notice-card">考勤状态与行程执行页保持联动。</view>
+            <view class="notice-card">固定数据只用于页面演示，不连接真实后台。</view>
+          </view>
+        </view>
+
+        <view class="panel card">
+          <view class="panel-header">
+            <view>
+              <view class="panel-title">乘客评价</view>
+              <view class="panel-subtitle">评分和留言可以切换查看。</view>
+            </view>
+          </view>
+
+          <view class="rating-list">
+            <view wx:for="{{ratingHighlights}}" wx:key="driver" class="rating-card">
+              <view class="rating-name">{{item.driver}}</view>
+              <view class="rating-score">评分 {{item.score}}</view>
+              <view class="rating-note">{{item.note}}</view>
+            </view>
+          </view>
+
+          <view class="notice-list">
+            <view wx:for="{{tripRecords}}" wx:key="id" class="notice-card">
+              {{item.routeName}} · {{item.time}} · {{item.status}}
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </view>
+  </scroll-view>
+</view>

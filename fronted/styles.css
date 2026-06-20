@@ -527,6 +527,289 @@ body::before {
   border: 1px solid rgba(89, 123, 170, 0.1);
 }
 
+.heatmap-component {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) 320px;
+  gap: 16px;
+}
+
+.heatmap-map {
+  position: relative;
+  min-height: 480px;
+  padding: 18px;
+  border-radius: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(77, 129, 255, 0.1), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #f3f7fd 100%);
+  border: 1px solid rgba(89, 123, 170, 0.1);
+}
+
+.heatmap-map::before,
+.heatmap-scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(93, 122, 165, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(93, 122, 165, 0.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.heatmap-map-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.heatmap-map-title {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.heatmap-map-subtitle {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.heatmap-map-badge {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(77, 129, 255, 0.12);
+  color: #3158cb;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.heatmap-scene {
+  position: relative;
+  height: 390px;
+  border-radius: 22px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(77, 129, 255, 0.12), transparent 18%),
+    radial-gradient(circle at 72% 68%, rgba(54, 183, 161, 0.12), transparent 20%),
+    linear-gradient(180deg, #fbfdff 0%, #eef4fb 100%);
+}
+
+.heatmap-campus-shape,
+.heatmap-campus-wing,
+.heatmap-road,
+.heatmap-route-line {
+  position: absolute;
+  border-radius: 999px;
+}
+
+.heatmap-campus-shape {
+  left: 8%;
+  top: 10%;
+  width: 76%;
+  height: 72%;
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(236, 243, 252, 0.95));
+  border: 1px solid rgba(89, 123, 170, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+  transform: rotate(-4deg);
+}
+
+.heatmap-campus-wing {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(89, 123, 170, 0.08);
+}
+
+.heat-wing-a {
+  left: 14%;
+  top: 15%;
+  width: 18%;
+  height: 18%;
+}
+
+.heat-wing-b {
+  right: 18%;
+  top: 24%;
+  width: 16%;
+  height: 20%;
+}
+
+.heat-wing-c {
+  left: 36%;
+  bottom: 18%;
+  width: 24%;
+  height: 14%;
+}
+
+.heat-road {
+  background: linear-gradient(90deg, rgba(77, 129, 255, 0.14), rgba(54, 183, 161, 0.14));
+  box-shadow: 0 0 0 1px rgba(77, 129, 255, 0.06);
+}
+
+.heat-road-a {
+  left: 14%;
+  top: 53%;
+  width: 68%;
+  height: 10px;
+}
+
+.heat-road-b {
+  left: 22%;
+  top: 28%;
+  width: 48%;
+  height: 8px;
+  transform: rotate(-18deg);
+}
+
+.heat-road-c {
+  left: 28%;
+  bottom: 26%;
+  width: 42%;
+  height: 8px;
+  transform: rotate(16deg);
+}
+
+.heatmap-map::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 10px;
+  height: 30px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(77, 129, 255, 0.08), rgba(54, 183, 161, 0.08));
+  filter: blur(12px);
+}
+
+.heatpoint {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  cursor: pointer;
+}
+
+.heatpoint-pulse,
+.heatpoint-core {
+  position: absolute;
+  border-radius: 999px;
+}
+
+.heatpoint-pulse {
+  width: 48px;
+  height: 48px;
+  opacity: 0.36;
+  filter: blur(1px);
+  animation: heat-pulse 2.8s ease-in-out infinite;
+}
+
+.heatpoint-core {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.16);
+}
+
+.heatpoint-chip {
+  position: absolute;
+  top: 28px;
+  min-width: 120px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(89, 123, 170, 0.12);
+  box-shadow: 0 10px 24px rgba(65, 94, 129, 0.1);
+  text-align: left;
+}
+
+.heatpoint-count {
+  font-size: 18px;
+  font-weight: 900;
+  color: #17314b;
+}
+
+.heatpoint-name {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #35506f;
+}
+
+.heatpoint-note {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.heatpoint.tone-1 .heatpoint-pulse,
+.heatpoint.tone-1 .heatpoint-core {
+  background: rgba(77, 129, 255, 0.45);
+}
+
+.heatpoint.tone-2 .heatpoint-pulse,
+.heatpoint.tone-2 .heatpoint-core {
+  background: rgba(54, 183, 161, 0.5);
+}
+
+.heatpoint.tone-3 .heatpoint-pulse,
+.heatpoint.tone-3 .heatpoint-core {
+  background: rgba(126, 197, 70, 0.5);
+}
+
+.heatpoint.tone-4 .heatpoint-pulse,
+.heatpoint.tone-4 .heatpoint-core {
+  background: rgba(241, 184, 79, 0.5);
+}
+
+.heatpoint.tone-5 .heatpoint-pulse,
+.heatpoint.tone-5 .heatpoint-core {
+  background: rgba(255, 125, 115, 0.55);
+}
+
+.heatmap-side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.heat-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.heat-stat-label {
+  font-size: 11px;
+  color: #6d8097;
+}
+
+.heat-stat-value {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+@keyframes heat-pulse {
+  0% {
+    transform: scale(0.88);
+    opacity: 0.18;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.36;
+  }
+  100% {
+    transform: scale(0.88);
+    opacity: 0.18;
+  }
+}
+
 .dispatch-map::before,
 .heatmap-board::before {
   content: "";
@@ -683,6 +966,13 @@ body::before {
   font-weight: 700;
 }
 
+.heat-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
 .detail-actions {
   display: flex;
   flex-wrap: wrap;
@@ -730,8 +1020,20 @@ body::before {
 
 .heat-section {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: minmax(0, 1.15fr) 380px;
   gap: 16px;
+}
+
+.heatmap-component.is-compact {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+
+.heatmap-component.is-compact .heatmap-map {
+  min-height: 420px;
+}
+
+.heatmap-component.is-compact .heatmap-scene {
+  height: 320px;
 }
 
 .heat-station-list {
@@ -817,6 +1119,7 @@ body::before {
 
   .dispatch-shell,
   .heatmap-shell,
+  .heatmap-component,
   .heat-section {
     grid-template-columns: 1fr;
   }

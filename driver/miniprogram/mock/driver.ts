@@ -16,6 +16,13 @@ export interface DriverViewTab {
   hint: string
 }
 
+export interface DriverPageLink {
+  key: 'index' | 'tasks' | 'vehicle' | 'trip' | 'report' | 'attendance' | 'logs'
+  label: string
+  hint: string
+  path: string
+}
+
 export interface AlertItem {
   id: string
   title: string
@@ -50,6 +57,16 @@ export const driverTabs: DriverViewTab[] = [
   { key: 'trip', label: '行程执行', hint: '开始 / 到站 / 结束' },
   { key: 'report', label: '异常上报', hint: '固定表单演示' },
   { key: 'attendance', label: '考勤评价', hint: '查看考勤与评分' },
+]
+
+export const driverPages: DriverPageLink[] = [
+  { key: 'index', label: '首页', hint: '运营总览', path: '/pages/index/index' },
+  { key: 'tasks', label: '今日任务', hint: '查看排班与进度', path: '/pages/tasks/tasks' },
+  { key: 'vehicle', label: '车辆绑定', hint: '确认车辆状态', path: '/pages/vehicle/vehicle' },
+  { key: 'trip', label: '行程执行', hint: '开始 / 到站 / 结束', path: '/pages/trip/trip' },
+  { key: 'report', label: '异常上报', hint: '固定表单演示', path: '/pages/report/report' },
+  { key: 'attendance', label: '考勤评价', hint: '查看考勤与评分', path: '/pages/attendance/attendance' },
+  { key: 'logs', label: '流水记录', hint: '行程与考勤', path: '/pages/logs/logs' },
 ]
 
 export const todayTasks: DriverTask[] = [

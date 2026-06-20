@@ -1,10 +1,10 @@
 <view class="app-shell">
   <scroll-view class="content-scroll" scroll-y>
-    <view class="page-body driver-home" style="padding-top: {{topInset}}px;">
-      <view class="driver-hero card">
+    <view class="driver-page-shell index-page" style="padding-top: {{topInset}}px;">
+      <view class="driver-page-hero card">
         <view class="driver-hero-top">
           <view>
-            <view class="driver-kicker">司机运营工作台</view>
+            <view class="driver-kicker">司机小程序 · 首页总览</view>
             <view class="driver-title">{{driverName}}</view>
             <view class="driver-subtitle">{{driverRole}}</view>
           </view>
@@ -15,58 +15,46 @@
           <view wx:for="{{summaryBanners}}" wx:key="index" class="banner-pill">{{item}}</view>
         </view>
 
-        <view class="grid-2 stats-grid">
-          <view wx:for="{{driverStats}}" wx:key="label" class="stat-card">
-            <text class="stat-label">{{item.label}}</text>
-            <text class="stat-value">{{item.value}}</text>
-            <text class="stat-hint">{{item.hint}}</text>
-          </view>
-        </view>
-
-        <view class="view-tabs">
+        <view class="driver-nav-grid">
           <view
-            wx:for="{{driverTabs}}"
+            wx:for="{{driverPages}}"
             wx:key="key"
-            class="view-tab {{activeView === item.key ? 'is-active' : ''}}"
-            data-key="{{item.key}}"
-            bindtap="onViewChange"
+            class="driver-nav-item {{activePage === item.key ? 'is-active' : ''}}"
+            data-url="{{item.path}}"
+            bindtap="onNavigate"
           >
-            <text class="view-tab-label">{{item.label}}</text>
-            <text class="view-tab-hint">{{item.hint}}</text>
+            <text class="driver-nav-label">{{item.label}}</text>
+            <text class="driver-nav-hint">{{item.hint}}</text>
           </view>
         </view>
-
-        <view class="view-tip">点上面的标签切换不同页面，当前只显示对应模块内容。</view>
       </view>
 
-      <view wx:if="{{activeView === 'dashboard'}}" class="dashboard-grid">
+      <view class="grid-2 index-stats">
+        <view wx:for="{{driverStats}}" wx:key="label" class="stat-card">
+          <text class="stat-label">{{item.label}}</text>
+          <text class="stat-value">{{item.value}}</text>
+          <text class="stat-hint">{{item.hint}}</text>
+        </view>
+      </view>
+
+      <view class="index-grid">
         <view class="panel card">
           <view class="panel-header">
             <view>
               <view class="panel-title">今日任务</view>
-              <view class="panel-subtitle">点选任务后，右侧会同步任务状态与下一站信息。</view>
+              <view class="panel-subtitle">点击卡片进入“今日任务”独立页面。</view>
             </view>
+            <view class="panel-action" data-url="/pages/tasks/tasks" bindtap="onOpenPage">去任务页</view>
           </view>
 
-          <view class="task-list">
-            <view
-              wx:for="{{todayTasks}}"
-              wx:key="id"
-              class="task-card card {{activeTaskIndex === index ? 'is-active' : ''}}"
-              data-index="{{index}}"
-              bindtap="onTaskTap"
-            >
-              <view class="task-top">
-                <view>
-                  <view class="task-name">{{item.routeName}}</view>
-                  <view class="task-sub">{{item.departTime}} - {{item.arriveTime}} · {{item.vehicle}}</view>
-                </view>
-                <view class="task-badge">{{item.status}}</view>
+          <view class="mini-task-list">
+            <view wx:for="{{todayTasks}}" wx:key="id" class="mini-task-card">
+              <view class="mini-task-top">
+                <view class="mini-task-title">{{item.routeName}}</view>
+                <view class="mini-task-status">{{item.status}}</view>
               </view>
-              <view class="task-meta">
-                <text>座位 {{item.seats}}</text>
-                <text>下一站 {{item.nextStop}}</text>
-              </view>
+              <view class="mini-task-sub">{{item.departTime}} - {{item.arriveTime}} · {{item.vehicle}}</view>
+              <view class="mini-task-note">{{item.note}}</view>
             </view>
           </view>
         </view>
@@ -74,43 +62,21 @@
         <view class="panel card">
           <view class="panel-header">
             <view>
-              <view class="panel-title">执行面板</view>
-              <view class="panel-subtitle">固定数据演示，但按钮都可以切换状态。</view>
+              <view class="panel-title">调度提醒</view>
+              <view class="panel-subtitle">呼叫提醒、行程节奏和热点提示同步展示。</view>
             </view>
-            <view class="panel-action" bindtap="onCallToast">同步提醒</view>
+            <view class="panel-action" data-url="/pages/trip/trip" bindtap="onOpenPage">去行程页</view>
           </view>
 
-          <view class="current-card">
-            <view class="current-row">
-              <view class="current-item">
-                <text class="current-label">当前任务</text>
-                <text class="current-value">{{selectedTask.routeName}}</text>
-              </view>
-              <view class="current-item">
-                <text class="current-label">行驶状态</text>
-                <text class="current-value">{{selectedTask.status}}</text>
-              </view>
-            </view>
-            <view class="current-row">
-              <view class="current-item">
-                <text class="current-label">车辆</text>
-                <text class="current-value">{{selectedTask.vehicle}}</text>
-              </view>
-              <view class="current-item">
-                <text class="current-label">下一站</text>
-                <text class="current-value">{{selectedTask.nextStop}}</text>
-              </view>
+          <view class="alert-list">
+            <view wx:for="{{callAlerts}}" wx:key="id" class="alert-card {{item.tone}}">
+              <view class="alert-title">{{item.title}}</view>
+              <view class="alert-meta">{{item.station}} · {{item.count}}</view>
             </view>
           </view>
 
-          <view class="action-row">
-            <view class="primary-button" data-action="start" bindtap="onTripAction">开始行程</view>
-            <view class="ghost-button" data-action="arrive" bindtap="onTripAction">到站确认</view>
-            <view class="ghost-button" bindtap="onOpenLogs">查看流水</view>
-          </view>
-
-          <view class="timeline-card">
-            <view class="timeline-headline">行程节奏</view>
+          <view class="timeline-card" style="margin-top: 18rpx;">
+            <view class="timeline-headline">执行节奏</view>
             <view class="timeline-list">
               <view wx:for="{{tripTimeline}}" wx:key="label" class="timeline-item">
                 <view class="timeline-pin {{item.tone}}"></view>
@@ -127,224 +93,34 @@
         </view>
       </view>
 
-      <view wx:if="{{activeView === 'vehicle'}}" class="panel card wide-panel">
-        <view class="panel-header">
-          <view>
-            <view class="panel-title">车辆绑定</view>
-            <view class="panel-subtitle">绑定、检查和刷新状态都保留成可演示按钮。</view>
-          </view>
-          <view class="panel-action" data-action="bind" bindtap="onVehicleAction">绑定车辆</view>
-        </view>
-
-        <view class="vehicle-hero">
-          <view class="vehicle-id">{{vehicleProfile.plate}}</view>
-          <view class="vehicle-model">{{vehicleProfile.model}}</view>
-          <view class="vehicle-chip">{{vehicleProfile.bindStatus}}</view>
-        </view>
-
-        <view class="grid-2">
-          <view class="stat-card">
-            <text class="stat-label">车载状态</text>
-            <text class="stat-value">{{vehicleProfile.fuel}}</text>
-            <text class="stat-hint">{{vehicleProfile.maintenance}}</text>
-          </view>
-          <view class="stat-card">
-            <text class="stat-label">车辆信息</text>
-            <text class="stat-value">{{vehicleProfile.seatCount}}</text>
-            <text class="stat-hint">{{vehicleProfile.odometer}}</text>
-          </view>
-        </view>
-
-        <view class="check-grid">
-          <view wx:for="{{vehicleChecks}}" wx:key="label" class="check-card">
-            <view class="check-label">{{item.label}}</view>
-            <view class="check-value">{{item.value}}</view>
-          </view>
-        </view>
-
-        <view class="action-row">
-          <view class="primary-button" data-action="inspect" bindtap="onVehicleAction">查看检查项</view>
-          <view class="ghost-button" data-action="refresh" bindtap="onVehicleAction">刷新状态</view>
-        </view>
-      </view>
-
-      <view wx:if="{{activeView === 'trip'}}" class="dashboard-grid">
+      <view class="index-grid">
         <view class="panel card">
           <view class="panel-header">
             <view>
-              <view class="panel-title">行程执行</view>
-              <view class="panel-subtitle">开始、到站、结束这三步都可点，展示真实流程感。</view>
+              <view class="panel-title">快捷入口</view>
+              <view class="panel-subtitle">直接进入车辆、异常和考勤页面。</view>
             </view>
           </view>
 
-          <view class="progress-track">
-            <view class="progress-line"></view>
-            <view class="progress-point is-done">发车</view>
-            <view class="progress-point is-done">途中</view>
-            <view class="progress-point is-current">到站</view>
-            <view class="progress-point">结束</view>
-          </view>
-
-          <view class="current-card">
-            <view class="current-row">
-              <view class="current-item">
-                <text class="current-label">当前路段</text>
-                <text class="current-value">{{selectedTask.routeName}}</text>
-              </view>
-              <view class="current-item">
-                <text class="current-label">预计到达</text>
-                <text class="current-value">{{selectedTask.arriveTime}}</text>
-              </view>
-            </view>
-            <view class="current-row">
-              <view class="current-item">
-                <text class="current-label">备注</text>
-                <text class="current-value">{{selectedTask.note}}</text>
-              </view>
-              <view class="current-item">
-                <text class="current-label">座位情况</text>
-                <text class="current-value">{{selectedTask.seats}}</text>
-              </view>
-            </view>
-          </view>
-
-          <view class="action-row">
-            <view class="primary-button" data-action="start" bindtap="onTripAction">开始行程</view>
-            <view class="ghost-button" data-action="arrive" bindtap="onTripAction">到站确认</view>
-            <view class="ghost-button" data-action="finish" bindtap="onTripAction">结束行程</view>
+          <view class="quick-entry-grid">
+            <view class="quick-entry" data-url="/pages/vehicle/vehicle" bindtap="onOpenPage">车辆绑定</view>
+            <view class="quick-entry" data-url="/pages/report/report" bindtap="onOpenPage">异常上报</view>
+            <view class="quick-entry" data-url="/pages/attendance/attendance" bindtap="onOpenPage">考勤评价</view>
+            <view class="quick-entry" data-url="/pages/logs/logs" bindtap="onOpenPage">流水记录</view>
           </view>
         </view>
 
         <view class="panel card">
           <view class="panel-header">
             <view>
-              <view class="panel-title">路线信息</view>
-              <view class="panel-subtitle">固定路线站点和行程节奏一起展示。</view>
-            </view>
-          </view>
-
-          <view class="route-summary">
-            <view class="route-summary-item">
-              <text class="route-summary-label">发车</text>
-              <text class="route-summary-value">{{selectedTask.departTime}}</text>
-            </view>
-            <view class="route-summary-item">
-              <text class="route-summary-label">到达</text>
-              <text class="route-summary-value">{{selectedTask.arriveTime}}</text>
-            </view>
-            <view class="route-summary-item">
-              <text class="route-summary-label">下一站</text>
-              <text class="route-summary-value">{{selectedTask.nextStop}}</text>
-            </view>
-          </view>
-
-          <view class="step-list">
-            <view wx:for="{{tripTimeline}}" wx:key="label" class="step-item">
-              <view class="step-time">{{item.label}}</view>
-              <view class="step-copy">
-                <view class="step-title">{{item.title}}</view>
-                <view class="step-desc">{{item.desc}}</view>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <view wx:if="{{activeView === 'report'}}" class="panel card wide-panel">
-        <view class="panel-header">
-          <view>
-            <view class="panel-title">异常上报</view>
-            <view class="panel-subtitle">上报类别切换后，底部文案和主提示会同步变化。</view>
-          </view>
-          <view class="panel-action" bindtap="onSubmitReport">提交上报</view>
-        </view>
-
-        <view class="report-grid">
-          <view class="report-options">
-            <view wx:for="{{reportReasons}}" wx:key="label" class="report-option {{activeReportIndex === index ? 'is-active' : ''}}" data-index="{{index}}" bindtap="onReportTap">
-              <view class="report-label">{{item.label}}</view>
-              <view class="report-desc">{{item.desc}}</view>
-            </view>
-          </view>
-          <view class="report-preview">
-            <view class="preview-kicker">上报预览</view>
-            <view class="preview-title">{{reportSummary}}</view>
-            <view class="preview-desc">{{reportNote}}</view>
-            <view class="preview-tags">
-              <view class="preview-tag">自动同步后台</view>
-              <view class="preview-tag">固定数据演示</view>
-              <view class="preview-tag">可重复点击</view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <view wx:if="{{activeView === 'attendance'}}" class="dashboard-grid">
-        <view class="panel card">
-          <view class="panel-header">
-            <view>
-              <view class="panel-title">考勤摘要</view>
-              <view class="panel-subtitle">打卡、开始、结束与评分都放在一起。</view>
-            </view>
-            <view class="panel-action" bindtap="onOpenLogs">打开记录</view>
-          </view>
-
-          <view class="grid-3">
-            <view wx:for="{{attendanceStats}}" wx:key="label" class="stat-card">
-              <text class="stat-label">{{item.label}}</text>
-              <text class="stat-value">{{item.value}}</text>
-              <text class="stat-hint">固定演示数据</text>
-            </view>
-          </view>
-        </view>
-
-        <view class="panel card">
-          <view class="panel-header">
-            <view>
-              <view class="panel-title">乘客评价</view>
-              <view class="panel-subtitle">评分和留言可以切换查看。</view>
-            </view>
-          </view>
-
-          <view class="rating-list">
-            <view wx:for="{{ratingHighlights}}" wx:key="driver" class="rating-card">
-              <view class="rating-name">{{item.driver}}</view>
-              <view class="rating-score">评分 {{item.score}}</view>
-              <view class="rating-note">{{item.note}}</view>
-            </view>
-          </view>
-        </view>
-      </view>
-
-      <view wx:if="{{activeView === 'dashboard' || activeView === 'attendance'}}" class="feed-grid">
-        <view class="panel card feed-panel">
-          <view class="panel-header">
-            <view>
-              <view class="panel-title">呼叫与提醒</view>
-              <view class="panel-subtitle">固定数据演示候车与热点提醒。</view>
-            </view>
-          </view>
-
-          <view class="alert-list">
-            <view wx:for="{{callAlerts}}" wx:key="id" class="alert-card {{item.tone}}">
-              <view class="alert-title">{{item.title}}</view>
-              <view class="alert-meta">{{item.station}} · {{item.count}}</view>
-            </view>
-          </view>
-        </view>
-
-        <view class="panel card feed-panel">
-          <view class="panel-header">
-            <view>
-              <view class="panel-title">任务说明</view>
-              <view class="panel-subtitle">通过按钮切换不同驾驶场景。</view>
+              <view class="panel-title">页面说明</view>
+              <view class="panel-subtitle">这不是单页堆叠，而是多个真实页面之间切换。</view>
             </view>
           </view>
 
           <view class="notice-list">
-            <view class="notice-card">点击「车辆绑定」可查看绑定状态。</view>
-            <view class="notice-card">点击「行程执行」可模拟发车与到站。</view>
-            <view class="notice-card">点击「异常上报」可切换上报类型。</view>
+            <view class="notice-card">任务、车辆、行程、异常和考勤都已拆成独立页面。</view>
+            <view class="notice-card">顶部入口保持固定，方便在演示时来回切换。</view>
           </view>
         </view>
       </view>

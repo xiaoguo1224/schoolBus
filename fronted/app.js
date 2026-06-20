@@ -877,6 +877,16 @@ const heatmapPeriods = [
       { name: '食堂', count: '45', level: 2, note: '轻度聚集' },
       { name: '行政楼', count: '38', level: 1, note: '低热' },
     ],
+    mapPoints: [
+      { name: '北门', count: '92', level: 5, note: '12 人候车', x: 16, y: 70 },
+      { name: '图书馆', count: '86', level: 4, note: '候车密集', x: 32, y: 55 },
+      { name: '南门', count: '89', level: 5, note: '返程排队', x: 64, y: 32 },
+      { name: '研究生院', count: '74', level: 3, note: '持续升温', x: 78, y: 22 },
+      { name: '东门', count: '61', level: 3, note: '正常', x: 47, y: 75 },
+      { name: '南校区', count: '53', level: 2, note: '稳定需求', x: 22, y: 42 },
+      { name: '食堂', count: '45', level: 2, note: '轻度聚集', x: 54, y: 58 },
+      { name: '行政楼', count: '38', level: 1, note: '低热', x: 80, y: 55 },
+    ],
   },
   {
     id: 'midday',
@@ -898,6 +908,16 @@ const heatmapPeriods = [
       { name: '行政楼', count: '28', level: 1, note: '低热' },
       { name: '研究生院', count: '31', level: 1, note: '平稳' },
       { name: '南校区', count: '38', level: 2, note: '穿梭需求' },
+    ],
+    mapPoints: [
+      { name: '图书馆', count: '72', level: 4, note: '候车上升', x: 30, y: 56 },
+      { name: '食堂', count: '67', level: 4, note: '短时聚集', x: 54, y: 60 },
+      { name: '北门', count: '48', level: 2, note: '平稳', x: 16, y: 70 },
+      { name: '东门', count: '41', level: 2, note: '正常', x: 46, y: 75 },
+      { name: '南门', count: '35', level: 1, note: '较低', x: 64, y: 32 },
+      { name: '行政楼', count: '28', level: 1, note: '低热', x: 80, y: 55 },
+      { name: '研究生院', count: '31', level: 1, note: '平稳', x: 78, y: 22 },
+      { name: '南校区', count: '38', level: 2, note: '穿梭需求', x: 22, y: 42 },
     ],
   },
   {
@@ -921,8 +941,94 @@ const heatmapPeriods = [
       { name: '南校区', count: '54', level: 3, note: '穿梭频繁' },
       { name: '行政楼', count: '32', level: 1, note: '低热' },
     ],
+    mapPoints: [
+      { name: '南门', count: '94', level: 5, note: '返程高热', x: 64, y: 32 },
+      { name: '研究生院', count: '83', level: 5, note: '集中候车', x: 78, y: 22 },
+      { name: '图书馆', count: '78', level: 4, note: '持续上升', x: 30, y: 56 },
+      { name: '北门', count: '64', level: 3, note: '排队明显', x: 16, y: 70 },
+      { name: '东门', count: '49', level: 2, note: '正常', x: 46, y: 75 },
+      { name: '食堂', count: '46', level: 2, note: '散点需求', x: 54, y: 60 },
+      { name: '南校区', count: '54', level: 3, note: '穿梭频繁', x: 22, y: 42 },
+      { name: '行政楼', count: '32', level: 1, note: '低热', x: 80, y: 55 },
+    ],
   },
 ]
+
+function renderHeatmapMap(period, variant = 'full') {
+  const points = period.mapPoints || []
+  return `
+    <section class="heatmap-component ${variant === 'compact' ? 'is-compact' : 'is-full'}">
+      <div class="heatmap-map">
+        <div class="heatmap-map-header">
+          <div>
+            <div class="heatmap-map-title">湘潭大学校园候车热力</div>
+            <div class="heatmap-map-subtitle">地图底图 · 热点层随时段变化</div>
+          </div>
+          <div class="heatmap-map-badge">${period.label}</div>
+        </div>
+
+        <div class="heatmap-scene">
+          <div class="heatmap-campus-shape"></div>
+          <div class="heatmap-campus-wing heat-wing-a"></div>
+          <div class="heatmap-campus-wing heat-wing-b"></div>
+          <div class="heatmap-campus-wing heat-wing-c"></div>
+          <div class="heatmap-road heat-road-a"></div>
+          <div class="heatmap-road heat-road-b"></div>
+          <div class="heatmap-road heat-road-c"></div>
+          <div class="heatmap-route-line heat-route-a"></div>
+          <div class="heatmap-route-line heat-route-b"></div>
+          <div class="heatmap-route-line heat-route-c"></div>
+          ${points
+            .map(
+              (point) => `
+                <div class="heatpoint tone-${point.level}" style="left:${point.x}%; top:${point.y}%">
+                  <div class="heatpoint-pulse"></div>
+                  <div class="heatpoint-core"></div>
+                  <div class="heatpoint-chip">
+                    <div class="heatpoint-count">${point.count}</div>
+                    <div class="heatpoint-name">${point.name}</div>
+                    <div class="heatpoint-note">${point.note}</div>
+                  </div>
+                </div>
+              `,
+            )
+            .join('')}
+        </div>
+      </div>
+
+      <div class="heatmap-side">
+        <div class="section-title-inline">站点热度</div>
+        <div class="heat-station-list">
+          ${points
+            .slice(0, 4)
+            .map(
+              (point) => `
+                <div class="heat-station">
+                  <div class="heat-station-top">
+                    <span>${point.name}</span>
+                    <span>${point.count}</span>
+                  </div>
+                  <div class="heat-station-meta">${point.note}</div>
+                </div>
+              `,
+            )
+            .join('')}
+        </div>
+
+        <div class="heat-legend">
+          <div class="section-title-inline">热度说明</div>
+          <div class="heat-legend-row">
+            <div class="heat-legend-item tone-1">1-2 低热</div>
+            <div class="heat-legend-item tone-3">3 中热</div>
+            <div class="heat-legend-item tone-4">4 高热</div>
+            <div class="heat-legend-item tone-5">5 极热</div>
+          </div>
+          <div class="heat-note">${period.note}</div>
+        </div>
+      </div>
+    </section>
+  `
+}
 
 var appState = {
   activeModuleId: 'dashboard',
@@ -1225,21 +1331,7 @@ function renderDashboardWorkspace(module) {
               .join('')}
           </div>
 
-          <div class="heatmap-board" style="margin-top: 14px; min-height: 360px;">
-            <div class="heat-grid" style="position: relative; z-index: 1; padding: 18px;">
-              ${period.cells
-                .map(
-                  (cell) => `
-                    <div class="heat-cell level-${cell.level}">
-                      <div class="heat-cell-label">${cell.name}</div>
-                      <div class="heat-cell-value">${cell.count}</div>
-                      <div class="heat-cell-note">${cell.note}</div>
-                    </div>
-                  `,
-                )
-                .join('')}
-            </div>
-          </div>
+          <div style="margin-top: 14px;">${renderHeatmapMap(period, 'compact')}</div>
 
           <div class="heat-stats" style="margin-top: 14px;">
             <div class="section-title-inline">时段摘要</div>
@@ -1248,8 +1340,8 @@ function renderDashboardWorkspace(module) {
                 .map(
                   (stat) => `
                     <div class="heat-stat">
-                      <div style="font-size: 11px; color: #6d8097;">${stat.label}</div>
-                      <div style="margin-top: 6px; font-size: 18px; font-weight: 900;">${stat.value}</div>
+                      <div class="heat-stat-label">${stat.label}</div>
+                      <div class="heat-stat-value">${stat.value}</div>
                     </div>
                   `,
                 )
@@ -1419,34 +1511,7 @@ function renderHeatmapWorkspace() {
         .join('')}</div>
 
       <div class="heat-section" style="margin-top: 14px;">
-        <div>
-          <div class="heatmap-board">
-            <div class="heat-grid" style="position: relative; z-index: 1; padding: 18px;">
-              ${period.cells
-                .map(
-                  (cell) => `
-                    <div class="heat-cell level-${cell.level}">
-                      <div class="heat-cell-label">${cell.name}</div>
-                      <div class="heat-cell-value">${cell.count}</div>
-                      <div class="heat-cell-note">${cell.note}</div>
-                    </div>
-                  `,
-                )
-                .join('')}
-            </div>
-          </div>
-
-          <div class="heat-legend" style="margin-top: 14px;">
-            <div class="section-title-inline">热度说明</div>
-            <div class="heat-legend-row">
-              <div class="heat-legend-item">1-2 低热</div>
-              <div class="heat-legend-item">3 中热</div>
-              <div class="heat-legend-item">4-5 高热</div>
-              <div class="heat-legend-item">点击时段切换</div>
-            </div>
-            <div class="heat-note" style="margin-top: 12px;">${period.note}</div>
-          </div>
-        </div>
+        ${renderHeatmapMap(period, 'full')}
 
         <div class="heat-detail">
           <div class="heat-stats">
@@ -1456,8 +1521,8 @@ function renderHeatmapWorkspace() {
                 .map(
                   (stat) => `
                     <div class="heat-stat">
-                      <div style="font-size: 11px; color: #6d8097;">${stat.label}</div>
-                      <div style="margin-top: 6px; font-size: 18px; font-weight: 900;">${stat.value}</div>
+                      <div class="heat-stat-label">${stat.label}</div>
+                      <div class="heat-stat-value">${stat.value}</div>
                     </div>
                   `,
                 )
@@ -1469,7 +1534,7 @@ function renderHeatmapWorkspace() {
             <div class="detail-title">站点建议</div>
             <div class="detail-copy">根据当前热度，系统会给出调度和加车建议。</div>
             <div class="heat-station-list" style="margin-top: 14px;">
-              ${period.cells
+              ${period.mapPoints
                 .slice(0, 4)
                 .map(
                   (station) => `

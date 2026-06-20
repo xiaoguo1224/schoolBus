@@ -1,0 +1,85 @@
+<view class="app-shell">
+  <scroll-view class="content-scroll" scroll-y>
+    <view class="driver-page-shell report-page" style="padding-top: {{topInset}}px;">
+      <view class="driver-page-hero card">
+        <view class="driver-hero-top">
+          <view>
+            <view class="driver-kicker">司机小程序 · 独立页面</view>
+            <view class="driver-title">异常上报</view>
+            <view class="driver-subtitle">{{driverName}} · {{driverRole}}</view>
+          </view>
+          <view class="driver-status">待提交</view>
+        </view>
+
+        <view class="banner-strip">
+          <view wx:for="{{summaryBanners}}" wx:key="index" class="banner-pill">{{item}}</view>
+        </view>
+
+        <view class="driver-nav-grid">
+          <view
+            wx:for="{{driverPages}}"
+            wx:key="key"
+            class="driver-nav-item {{activePage === item.key ? 'is-active' : ''}}"
+            data-url="{{item.path}}"
+            bindtap="onNavigate"
+          >
+            <text class="driver-nav-label">{{item.label}}</text>
+            <text class="driver-nav-hint">{{item.hint}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="report-grid">
+        <view class="panel card">
+          <view class="panel-header">
+            <view>
+              <view class="panel-title">异常分类</view>
+              <view class="panel-subtitle">点击不同类型，右侧预览会同步变化。</view>
+            </view>
+          </view>
+
+          <view class="report-options">
+            <view
+              wx:for="{{reportReasons}}"
+              wx:key="label"
+              class="report-option {{activeReportIndex === index ? 'is-active' : ''}}"
+              data-index="{{index}}"
+              bindtap="onReportTap"
+            >
+              <view class="report-label">{{item.label}}</view>
+              <view class="report-desc">{{item.desc}}</view>
+            </view>
+          </view>
+        </view>
+
+        <view class="panel card">
+          <view class="panel-header">
+            <view>
+              <view class="panel-title">上报预览</view>
+              <view class="panel-subtitle">固定表单演示，提交后会弹出成功提示。</view>
+            </view>
+            <view class="panel-action" bindtap="onSubmitReport">提交上报</view>
+          </view>
+
+          <view class="report-preview">
+            <view class="preview-kicker">上报预览</view>
+            <view class="preview-title">{{reportSummary}}</view>
+            <view class="preview-desc">{{reportNote}}</view>
+            <view class="preview-tags">
+              <view class="preview-tag">自动同步后台</view>
+              <view class="preview-tag">固定数据演示</view>
+              <view class="preview-tag">可重复点击</view>
+            </view>
+          </view>
+
+          <view class="notice-list">
+            <view class="notice-card">可以继续切到「流水记录」查看演示历史。</view>
+            <view class="notice-card">异常上报不会提交真实数据，只用于界面演示。</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </view>
+  </scroll-view>
+</view>
