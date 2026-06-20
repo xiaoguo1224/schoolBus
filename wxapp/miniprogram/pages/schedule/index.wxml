@@ -1,0 +1,123 @@
+<view class="app-shell">
+  <scroll-view class="content-scroll" scroll-y>
+    <view class="page-body route-page" style="padding-top: {{topInset}}px;">
+      <view class="route-hero card">
+        <view class="route-hero-head">
+          <view>
+            <view class="route-kicker">线路与站点</view>
+            <view class="route-title">{{activeScheduleLabel}} · 线路视图</view>
+          </view>
+          <view class="route-badge">固定数据演示</view>
+        </view>
+        <view class="route-hero-desc">切换日期和线路筛选，查看当前班次、站点顺序和下一站 ETA。</view>
+      </view>
+
+      <scroll-view class="tabs-scroll" scroll-x>
+        <view class="tabs-row">
+          <view
+            wx:for="{{scheduleTabs}}"
+            wx:key="index"
+            class="tab-chip {{selectedTabIndex === index ? 'is-active' : ''}}"
+            data-index="{{index}}"
+            bindtap="onTabChange"
+          >
+            {{item}}
+          </view>
+        </view>
+      </scroll-view>
+
+      <scroll-view class="filters-scroll" scroll-x>
+        <view class="tabs-row">
+          <view
+            wx:for="{{routeFilters}}"
+            wx:key="index"
+            class="filter-chip {{selectedFilterIndex === index ? 'is-active' : ''}}"
+            data-index="{{index}}"
+            bindtap="onFilterChange"
+          >
+            {{item}}
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">今日班次</view>
+          <view class="section-subtitle">选中班次后，会同步进入线路详情页</view>
+        </view>
+      </view>
+
+      <view
+        wx:for="{{visibleTrips}}"
+        wx:key="id"
+        class="route-card card {{selectedTrip.id === item.id ? 'is-active' : ''}}"
+        data-trip-id="{{item.id}}"
+        bindtap="onTripTap"
+      >
+        <view class="route-card-top">
+          <view>
+            <view class="route-name">{{item.routeName}}</view>
+            <view class="route-direction">{{item.direction}}</view>
+          </view>
+          <view class="route-chip-status">{{item.status}}</view>
+        </view>
+
+        <view class="route-meta">
+          <view class="meta-item">
+            <text class="meta-label">发车</text>
+            <text class="meta-value">{{item.departTime}}</text>
+          </view>
+          <view class="meta-item">
+            <text class="meta-label">到达</text>
+            <text class="meta-value">{{item.arriveTime}}</text>
+          </view>
+          <view class="meta-item">
+            <text class="meta-label">余座</text>
+            <text class="meta-value">{{item.seatsLeft}} / {{item.capacity}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">线路详情</view>
+          <view class="section-subtitle">展示站点顺序、运营状态和下一站信息</view>
+        </view>
+        <view class="section-link" bindtap="onDetailTap">查看详情</view>
+      </view>
+
+      <view class="detail-card card">
+        <view class="detail-top">
+          <view>
+            <view class="detail-title">{{selectedTrip.routeName}}</view>
+            <view class="detail-subtitle">{{selectedTrip.direction}}</view>
+          </view>
+          <view class="detail-status">{{selectedTrip.eta}}</view>
+        </view>
+
+        <view class="detail-line">
+          <view class="detail-pill">车辆 {{selectedTrip.vehicle}}</view>
+          <view class="detail-pill">司机 {{selectedTrip.driver}}</view>
+          <view class="detail-pill">当前 {{selectedTrip.status}}</view>
+        </view>
+
+        <view class="timeline-list">
+          <view wx:for="{{routeStops}}" wx:key="name" class="timeline-item">
+            <view class="timeline-mark"></view>
+            <view class="timeline-copy">
+              <view class="timeline-head">
+                <text class="timeline-name">{{item.name}}</text>
+                <text class="timeline-time">{{item.time}}</text>
+              </view>
+              <view class="timeline-meta">{{item.label}} · {{item.crowd}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </view>
+  </scroll-view>
+
+  <footer-nav activeKey="route" />
+</view>

@@ -1,0 +1,167 @@
+<view class="app-shell">
+  <scroll-view class="content-scroll" scroll-y>
+    <view class="page-body ride-page" style="padding-top: {{topInset}}px;">
+      <view class="ride-hero card">
+        <view class="ride-hero-top">
+          <view>
+            <view class="ride-kicker">扫码乘车</view>
+            <view class="ride-title">{{selectedTrip.routeName}}</view>
+            <view class="ride-subtitle">{{selectedTrip.direction}}</view>
+          </view>
+          <view class="ride-status">{{selectedTrip.status}}</view>
+        </view>
+
+        <view class="qr-panel">
+          <view class="qr-box">
+            <view class="qr-ring"></view>
+            <view class="qr-grid">
+              <view class="qr-block"></view>
+              <view class="qr-block wide"></view>
+              <view class="qr-block"></view>
+              <view class="qr-block tall"></view>
+              <view class="qr-block"></view>
+              <view class="qr-block wide"></view>
+            </view>
+          </view>
+          <view class="qr-copy">
+            <text class="qr-title">座位二维码</text>
+            <text class="qr-desc">当前仅做界面演示，展示扫码付款后的乘车信息和下车提醒。</text>
+          </view>
+        </view>
+
+        <view class="seat-summary">
+          <view wx:for="{{seatStatus}}" wx:key="label" class="seat-summary-card {{item.tone}}">
+            <text class="seat-summary-label">{{item.label}}</text>
+            <text class="seat-summary-value">{{item.value}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">上下车站点</view>
+          <view class="section-subtitle">固定数据演示支付前后的乘车设置</view>
+        </view>
+      </view>
+
+      <view class="station-card card">
+        <view class="station-row">
+          <view class="station-block">
+            <view class="station-label">上车点</view>
+            <view class="station-value">{{selectedBoarding}}</view>
+          </view>
+          <view class="station-block">
+            <view class="station-label">下车点</view>
+            <view class="station-value">{{selectedAlighting}}</view>
+          </view>
+        </view>
+
+        <scroll-view class="station-scroll" scroll-x>
+          <view class="station-chip-row">
+            <view
+              wx:for="{{stationOptions}}"
+              wx:key="index"
+              class="station-chip {{selectedBoardingIndex === index ? 'is-active' : ''}}"
+              data-index="{{index}}"
+              bindtap="onBoardingTap"
+            >
+              {{item}}
+            </view>
+          </view>
+        </scroll-view>
+
+        <scroll-view class="station-scroll" scroll-x>
+          <view class="station-chip-row">
+            <view
+              wx:for="{{stationOptions}}"
+              wx:key="index"
+              class="station-chip {{selectedAlightingIndex === index ? 'is-active' : ''}}"
+              data-index="{{index}}"
+              bindtap="onAlightingTap"
+            >
+              {{item}}
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">支付与唤醒</view>
+          <view class="section-subtitle">支付方式、提醒方式和震动状态固定演示</view>
+        </view>
+      </view>
+
+      <view class="pay-card card">
+        <view class="pay-row">
+          <view
+            wx:for="{{paymentMethods}}"
+            wx:key="index"
+            class="pay-chip {{selectedPaymentIndex === index ? 'is-active' : ''}}"
+            data-index="{{index}}"
+            bindtap="onPaymentTap"
+          >
+            {{item}}
+          </view>
+        </view>
+
+        <view class="pay-row">
+          <view
+            wx:for="{{wakeupModes}}"
+            wx:key="index"
+            class="pay-chip {{selectedWakeupIndex === index ? 'is-active' : ''}}"
+            data-index="{{index}}"
+            bindtap="onWakeupTap"
+          >
+            {{item}}
+          </view>
+        </view>
+
+        <view class="toggle-list">
+          <view class="toggle-item">
+            <view>
+              <view class="toggle-title">开启到站唤醒</view>
+              <view class="toggle-desc">车辆接近目标站点时触发提醒</view>
+            </view>
+            <switch checked="{{wakeupEnabled}}" color="#8be85b" />
+          </view>
+          <view class="toggle-item">
+            <view>
+              <view class="toggle-title">手机震动</view>
+              <view class="toggle-desc">适合车上场景的快速提醒</view>
+            </view>
+            <switch checked="{{vibrationEnabled}}" color="#8be85b" />
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">路线摘要</view>
+          <view class="section-subtitle">展示发车、到达和运行状态</view>
+        </view>
+      </view>
+
+      <view class="summary-card card">
+        <view class="summary-line">
+          <view class="summary-item">
+            <text class="summary-label">发车</text>
+            <text class="summary-value">{{selectedTrip.departTime}}</text>
+          </view>
+          <view class="summary-item">
+            <text class="summary-label">到达</text>
+            <text class="summary-value">{{selectedTrip.arriveTime}}</text>
+          </view>
+          <view class="summary-item">
+            <text class="summary-label">费用</text>
+            <text class="summary-value">{{selectedTrip.fee}}</text>
+          </view>
+        </view>
+
+        <view class="primary-button confirm-button" bindtap="onSubmit">生成乘车订单</view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </view>
+  </scroll-view>
+</view>

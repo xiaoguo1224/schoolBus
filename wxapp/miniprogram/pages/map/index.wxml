@@ -1,0 +1,146 @@
+<view class="app-shell map-shell">
+  <scroll-view class="content-scroll map-scroll" scroll-y>
+    <view class="page-body map-page" style="padding-top: {{topInset}}px;">
+      <view class="map-header card">
+        <view class="map-header-row">
+          <view>
+            <view class="map-kicker">{{campusName}} · 实时地图</view>
+            <view class="map-title">班车位置与行驶路线</view>
+          </view>
+          <view class="map-back" bindtap="onBack">返回</view>
+        </view>
+        <view class="map-hint">可拖动地图、双指缩放。车头方向由箭头角度表示。</view>
+        <view class="map-legend-row">
+          <view class="map-legend-chip">校园中心 · 湘潭大学</view>
+          <view class="map-legend-chip">实线 = 当前班次</view>
+          <view class="map-legend-chip">支持拖动 / 缩放</view>
+        </view>
+      </view>
+
+      <scroll-view class="route-strip" scroll-x>
+        <view class="route-strip-inner">
+          <view
+            wx:for="{{mapScenes}}"
+            wx:key="id"
+            class="route-chip {{selectedSceneId === item.id ? 'is-active' : ''}}"
+            data-scene-id="{{item.id}}"
+            bindtap="onRouteTap"
+          >
+            <view class="route-chip-title">{{item.trip.routeName}}</view>
+            <view class="route-chip-subtitle">{{item.nextStop}} · {{item.eta}}</view>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view class="map-frame card">
+        <view class="map-frame-label">
+          <view class="map-frame-label-main">湘潭大学校园中心</view>
+          <view class="map-frame-label-sub">真实地图底图 · 班车与站点叠加</view>
+        </view>
+        <map
+          id="bus-map"
+          class="bus-map"
+          latitude="{{mapLatitude}}"
+          longitude="{{mapLongitude}}"
+          scale="{{mapScale}}"
+          markers="{{markers}}"
+          polyline="{{polyline}}"
+          enable-zoom
+          enable-scroll
+          enable-rotate
+        />
+
+        <view class="map-overlay">
+          <view class="map-overlay-chip is-main">{{selectedScene.trip.routeName}}</view>
+          <view class="map-overlay-chip">{{selectedScene.trip.direction}}</view>
+        </view>
+
+        <view class="map-floating">
+          <view class="float-button" bindtap="onFollowBus">跟随车辆</view>
+          <view class="float-button" bindtap="onShowAll">查看全线</view>
+        </view>
+      </view>
+
+      <view class="map-summary card">
+        <view class="summary-top">
+          <view>
+            <view class="summary-title">{{selectedScene.trip.routeName}}</view>
+            <view class="summary-subtitle">{{selectedScene.trip.direction}}</view>
+          </view>
+          <view class="summary-status">{{selectedScene.routeStatus}}</view>
+        </view>
+
+        <view class="summary-stats">
+          <view class="stat-box">
+            <text class="stat-label">车头方向</text>
+            <text class="stat-value">{{selectedScene.heading}}°</text>
+          </view>
+          <view class="stat-box">
+            <text class="stat-label">车速</text>
+            <text class="stat-value">{{selectedScene.speed}}</text>
+          </view>
+          <view class="stat-box">
+            <text class="stat-label">余座</text>
+            <text class="stat-value">{{selectedScene.occupancy}}</text>
+          </view>
+        </view>
+
+        <view class="summary-tags">
+          <view class="summary-tag">起点 {{selectedScene.trip.from}}</view>
+          <view class="summary-tag">终点 {{selectedScene.trip.to}}</view>
+          <view class="summary-tag">下一站 {{selectedScene.nextStop}}</view>
+        </view>
+
+        <view class="selected-line">
+          <view class="line-dot"></view>
+          <view class="line-copy">
+            <view class="line-title">当前车辆 {{selectedBusName}}</view>
+            <view class="line-text">下一站 {{selectedScene.nextStop}} · 预计 {{selectedScene.eta}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="map-timeline card">
+        <view class="section-title">站点顺序</view>
+        <view class="timeline-list">
+          <view
+            wx:for="{{routeStopsView}}"
+            wx:key="name"
+            class="timeline-item"
+          >
+            <view class="timeline-mark {{item.kind}}"></view>
+            <view class="timeline-copy">
+              <view class="timeline-head">
+                <text class="timeline-name">{{item.name}}</text>
+                <text class="timeline-kind">{{item.time}}</text>
+              </view>
+              <view class="timeline-meta">{{item.kindLabel}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="map-list card">
+        <view class="section-title">车队概览</view>
+        <view class="fleet-list">
+          <view
+            wx:for="{{mapScenes}}"
+            wx:key="id"
+            class="fleet-card {{selectedSceneId === item.id ? 'is-active' : ''}}"
+            data-scene-id="{{item.id}}"
+            bindtap="onRouteTap"
+          >
+            <view class="fleet-top">
+              <text class="fleet-name">{{item.trip.routeName}}</text>
+              <text class="fleet-badge">{{item.eta}}</text>
+            </view>
+            <view class="fleet-direction">{{item.trip.direction}}</view>
+            <view class="fleet-sub">{{item.busName}} · {{item.routeStatus}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <footer-nav activeKey="map" />
+</view>

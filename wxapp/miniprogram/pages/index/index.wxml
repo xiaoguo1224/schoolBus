@@ -1,0 +1,205 @@
+<view class="app-shell">
+  <scroll-view class="content-scroll" scroll-y>
+    <view class="page-body home-page" style="padding-top: {{topInset}}px;">
+      <view class="home-hero card">
+        <view class="home-hero-top">
+          <picker mode="selector" range="{{campuses}}" bindchange="onCampusChange">
+            <view class="campus-switch">
+              <text class="campus-name">{{currentCampus}}</text>
+              <text class="campus-arrow">▼</text>
+            </view>
+          </picker>
+          <view class="status-pill">今日班车稳定运行</view>
+        </view>
+
+        <view class="mode-switch">
+          <view
+            class="mode-chip {{currentMode === 'commute' ? 'is-active' : ''}}"
+            data-mode="commute"
+            bindtap="onModeChange"
+          >
+            通勤车
+          </view>
+          <view
+            class="mode-chip {{currentMode === 'ebike' ? 'is-active' : ''}}"
+            data-mode="ebike"
+            bindtap="onModeChange"
+          >
+            共享电动车
+          </view>
+        </view>
+
+        <view class="home-title">{{currentMode === 'commute' ? '智慧通勤' : '共享电动车'}}</view>
+        <view class="home-subtitle">
+          {{currentMode === 'commute' ? '线路、地图、扫码、提醒和共享电动车，一屏看全。' : '资格、考试、车辆与骑行入口，和通勤车保持同级切换。'}}
+        </view>
+
+        <view wx:if="{{currentMode === 'commute'}}" class="hero-actions">
+          <view class="hero-action main" bindtap="onRideTap">
+            <text class="hero-action-title">扫码乘车</text>
+            <text class="hero-action-desc">查看座位状态并支付</text>
+          </view>
+          <view class="hero-action ghost" bindtap="onMapTap">
+            <text class="hero-action-title">实时地图</text>
+            <text class="hero-action-desc">查看车辆、ETA 和站点</text>
+          </view>
+        </view>
+
+        <view wx:else class="hero-actions">
+          <view class="hero-action main" bindtap="onQuickActionTap" data-path="/pages/mine/index">
+            <text class="hero-action-title">乘车资格</text>
+            <text class="hero-action-desc">查看考试与实操进度</text>
+          </view>
+          <view class="hero-action ghost" bindtap="onQuickActionTap" data-path="/pages/mine/index">
+            <text class="hero-action-title">扫码租车</text>
+            <text class="hero-action-desc">查看附近车辆和电量</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">{{currentMode === 'commute' ? '今日运营概览' : '共享电动车概览'}}</view>
+          <view class="section-subtitle">{{currentMode === 'commute' ? '固定数据演示，展示当前通勤状态' : '资格、车辆、电量和骑行状态固定演示'}}</view>
+        </view>
+      </view>
+
+      <view wx:if="{{currentMode === 'commute'}}" class="grid-2">
+        <view wx:for="{{homeStats}}" wx:key="label" class="stat-card">
+          <text class="stat-label">{{item.label}}</text>
+          <text class="stat-value">{{item.value}}</text>
+          <text class="stat-hint">{{item.hint}}</text>
+        </view>
+      </view>
+
+      <view wx:else class="grid-2">
+        <view class="stat-card">
+          <text class="stat-label">已认证</text>
+          <text class="stat-value">128</text>
+          <text class="stat-hint">线上考试 + 实操通过</text>
+        </view>
+        <view class="stat-card">
+          <text class="stat-label">可租车辆</text>
+          <text class="stat-value">36</text>
+          <text class="stat-hint">围栏内正常可用</text>
+        </view>
+        <view class="stat-card">
+          <text class="stat-label">平均电量</text>
+          <text class="stat-value">74%</text>
+          <text class="stat-hint">满足短途骑行</text>
+        </view>
+        <view class="stat-card">
+          <text class="stat-label">今日骑行</text>
+          <text class="stat-value">19</text>
+          <text class="stat-hint">演示固定数据</text>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">快捷入口</view>
+          <view class="section-subtitle">按 {{currentMode === 'commute' ? '通勤车' : '共享电动车'}} 场景快速进入对应页面</view>
+        </view>
+      </view>
+
+      <view class="quick-grid">
+        <view
+          wx:for="{{quickActions}}"
+          wx:key="key"
+          class="quick-card {{item.tone}}"
+          data-path="{{item.pagePath}}"
+          bindtap="onQuickActionTap"
+        >
+          <view class="quick-top">
+            <text class="quick-icon">{{item.shortLabel}}</text>
+            <text class="quick-arrow">→</text>
+          </view>
+          <view class="quick-label">{{item.label}}</view>
+          <view class="quick-hint">{{item.hint}}</view>
+        </view>
+      </view>
+
+      <view wx:if="{{currentMode === 'commute'}}" class="section-header">
+        <view>
+          <view class="section-title">今日班车</view>
+          <view class="section-subtitle">点击卡片进入班次详情和扫码流程</view>
+        </view>
+        <view class="section-link" bindtap="onMapTap">查看地图</view>
+      </view>
+
+      <view
+        wx:for="{{todayTrips}}"
+        wx:key="id"
+        class="trip-card card"
+        data-trip-id="{{item.id}}"
+        bindtap="onTripTap"
+      >
+        <view class="trip-head">
+          <view>
+            <view class="trip-title">{{item.routeName}}</view>
+            <view class="trip-direction">{{item.direction}}</view>
+          </view>
+          <view class="trip-status">{{item.status}}</view>
+        </view>
+
+        <view class="trip-meta">
+          <view class="meta-item">
+            <text class="meta-label">发车</text>
+            <text class="meta-value">{{item.departTime}}</text>
+          </view>
+          <view class="meta-item">
+            <text class="meta-label">到达</text>
+            <text class="meta-value">{{item.arriveTime}}</text>
+          </view>
+          <view class="meta-item">
+            <text class="meta-label">余座</text>
+            <text class="meta-value">{{item.seatsLeft}} / {{item.capacity}}</text>
+          </view>
+        </view>
+
+        <view class="trip-bottom">
+          <text class="muted">{{item.vehicle}} · {{item.driver}}</text>
+          <text class="trip-eta">预计 {{item.eta}}</text>
+        </view>
+      </view>
+
+      <view wx:else class="section-header">
+        <view>
+          <view class="section-title">共享电动车车辆</view>
+          <view class="section-subtitle">展示附近车辆、电量、资格和骑行入口</view>
+        </view>
+      </view>
+
+      <view wx:else class="grid-2">
+        <view wx:for="{{ebikeItems}}" wx:key="id" class="service-card card">
+          <view class="service-label">{{item.name}}</view>
+          <view class="service-desc">{{item.rule}}</view>
+          <view class="service-meta">{{item.battery}} · {{item.distance}} · {{item.status}}</view>
+        </view>
+      </view>
+
+      <view wx:if="{{currentMode === 'commute'}}" class="service-grid grid-2">
+        <view class="service-card card">
+          <view class="service-label">乘车记录</view>
+          <view class="service-desc">查看历史乘车与座位信息</view>
+        </view>
+        <view class="service-card card">
+          <view class="service-label">优惠券</view>
+          <view class="service-desc">查看可用权益和活动券</view>
+        </view>
+        <view class="service-card card">
+          <view class="service-label">问题反馈</view>
+          <view class="service-desc">提交站点、支付和服务问题</view>
+        </view>
+        <view class="service-card card">
+          <view class="service-label">共享电动车</view>
+          <view class="service-desc">查看资格、考试和骑行入口</view>
+        </view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </view>
+  </scroll-view>
+
+  <footer-nav activeKey="home" />
+</view>

@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "footer-nav": "/components/footer-nav/footer-nav"
+  }
+}

@@ -1,0 +1,100 @@
+<view class="app-shell">
+  <scroll-view class="content-scroll" scroll-y>
+    <view class="page-body detail-page" style="padding-top: {{topInset}}px;">
+      <view class="detail-hero card">
+        <view class="detail-hero-top">
+          <view>
+            <view class="detail-kicker">线路详情</view>
+            <view class="detail-title">{{selectedTrip.routeName}}</view>
+            <view class="detail-subtitle">{{selectedTrip.direction}}</view>
+          </view>
+          <view class="detail-status">{{selectedTrip.status}}</view>
+        </view>
+
+        <view class="summary-grid">
+          <view wx:for="{{summaryItems}}" wx:key="label" class="summary-box">
+            <text class="summary-label">{{item.label}}</text>
+            <text class="summary-value">{{item.value}}</text>
+          </view>
+        </view>
+
+        <view class="detail-actions">
+          <view class="primary-button" bindtap="onReserveTap">进入扫码乘车</view>
+          <view class="ghost-button" bindtap="onMapTap">查看地图</view>
+          <view class="ghost-button" bindtap="onCallTap">一键呼叫</view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">车辆与座位</view>
+          <view class="section-subtitle">固定数据展示当前车辆和座位状态</view>
+        </view>
+      </view>
+
+      <view class="info-card card">
+        <view class="info-row">
+          <view class="info-item">
+            <text class="info-label">车辆</text>
+            <text class="info-value">{{selectedTrip.vehicle}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">司机</text>
+            <text class="info-value">{{selectedTrip.driver}}</text>
+          </view>
+        </view>
+        <view class="info-row">
+          <view class="info-item">
+            <text class="info-label">发车</text>
+            <text class="info-value">{{selectedTrip.departTime}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-label">到达</text>
+            <text class="info-value">{{selectedTrip.arriveTime}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">站点顺序</view>
+          <view class="section-subtitle">与地图页保持同一线路和同一站点节奏</view>
+        </view>
+      </view>
+
+      <view class="timeline-card card">
+        <view wx:for="{{routeStops}}" wx:key="name" class="timeline-item">
+          <view class="timeline-mark"></view>
+          <view class="timeline-copy">
+            <view class="timeline-head">
+              <text class="timeline-name">{{item.name}}</text>
+              <text class="timeline-time">{{item.time}}</text>
+            </view>
+            <view class="timeline-meta">{{item.label}} · {{item.crowd}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">座位状态</view>
+          <view class="section-subtitle">绿色可坐、红色已占用、灰色不可用</view>
+        </view>
+      </view>
+
+      <view class="seat-grid card">
+        <view wx:for="{{seatGrid}}" wx:key="id" class="seat-cell {{item.status === '可坐' ? 'is-available' : item.status === '已占用' ? 'is-taken' : 'is-off' }}">
+          <text class="seat-label">{{item.label}}</text>
+          <text class="seat-status">{{item.status}}</text>
+        </view>
+      </view>
+
+      <view class="notice-card card">
+        <view class="notice-title">乘车提示</view>
+        <view wx:for="{{noticeItems}}" wx:key="*this" class="notice-item">{{item}}</view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </view>
+  </scroll-view>
+</view>

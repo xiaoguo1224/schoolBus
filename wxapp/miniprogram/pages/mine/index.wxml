@@ -1,0 +1,133 @@
+<view class="app-shell">
+  <scroll-view class="content-scroll" scroll-y>
+    <view class="page-body mine-page" style="padding-top: {{topInset}}px;">
+      <view class="mine-hero card">
+        <view class="mine-head">
+          <view class="avatar-block">李</view>
+          <view class="mine-copy">
+            <view class="mine-name">{{profileName}}</view>
+            <view class="mine-campus">{{profileCampus}}</view>
+          </view>
+          <view class="mine-tag">实名已绑定</view>
+        </view>
+
+        <view class="grid-2 mine-stats">
+          <view wx:for="{{profileStats}}" wx:key="label" class="stat-card">
+            <text class="stat-label">{{item.label}}</text>
+            <text class="stat-value">{{item.value}}</text>
+            <text class="stat-hint">固定演示数据</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">出行服务</view>
+          <view class="section-subtitle">乘车、退款、反馈和共享电动车都在这里</view>
+        </view>
+      </view>
+
+      <view class="service-grid grid-2">
+        <view
+          wx:for="{{serviceItems}}"
+          wx:key="key"
+          class="mine-service card"
+          data-label="{{item.label}}"
+          bindtap="onServiceTap"
+        >
+          <view class="mine-service-title">{{item.label}}</view>
+          <view class="mine-service-desc">{{item.hint}}</view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">乘车记录</view>
+          <view class="section-subtitle">展示历史乘车、座位与退款状态</view>
+        </view>
+      </view>
+
+      <view class="record-list">
+        <view wx:for="{{rideRecords}}" wx:key="id" class="record-card card">
+          <view class="record-top">
+            <view>
+              <view class="record-title">{{item.routeName}}</view>
+              <view class="record-sub">{{item.date}} · {{item.time}} · {{item.boarding}} -> {{item.alighting}}</view>
+            </view>
+            <view class="record-badge">{{item.status}}</view>
+          </view>
+          <view class="record-meta">
+            <text>座位 {{item.seat}}</text>
+            <text>{{item.amount}}</text>
+            <text>{{item.note}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">优惠券与权益</view>
+          <view class="section-subtitle">固定展示活动券和乘车权益进度</view>
+        </view>
+      </view>
+
+      <view class="grid-2">
+        <view wx:for="{{couponItems}}" wx:key="id" class="coupon-card card">
+          <view class="coupon-top">
+            <view class="coupon-title">{{item.title}}</view>
+            <view class="coupon-tag">{{item.tag}}</view>
+          </view>
+          <view class="coupon-value">{{item.amount}}</view>
+          <view class="coupon-rule">{{item.rule}}</view>
+          <view class="coupon-expiry">有效期至 {{item.expiry}}</view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">问题反馈与评价</view>
+          <view class="section-subtitle">查看处理状态和司机评价记录</view>
+        </view>
+      </view>
+
+      <view class="grid-2">
+        <view wx:for="{{feedbackItems}}" wx:key="id" class="feedback-card card">
+          <view class="feedback-top">
+            <view class="feedback-title">{{item.title}}</view>
+            <view class="feedback-status">{{item.status}}</view>
+          </view>
+          <view class="feedback-meta">{{item.category}} · {{item.time}}</view>
+        </view>
+        <view wx:for="{{ratingItems}}" wx:key="id" class="feedback-card card">
+          <view class="feedback-top">
+            <view class="feedback-title">{{item.driver}}</view>
+            <view class="feedback-status">{{item.status}}</view>
+          </view>
+          <view class="feedback-meta">评分 {{item.score}} · {{item.comment}}</view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">共享电动车资格</view>
+          <view class="section-subtitle">考试、实操和车辆状态一起展示</view>
+        </view>
+      </view>
+
+      <view class="grid-2">
+        <view wx:for="{{ebikeItems}}" wx:key="id" class="ebike-card card">
+          <view class="ebike-top">
+            <view class="ebike-name">{{item.name}}</view>
+            <view class="ebike-status">{{item.status}}</view>
+          </view>
+          <view class="ebike-meta">{{item.battery}} · {{item.distance}}</view>
+          <view class="ebike-rule">{{item.rule}}</view>
+        </view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </view>
+  </scroll-view>
+
+  <footer-nav activeKey="mine" />
+</view>

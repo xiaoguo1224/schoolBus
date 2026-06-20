@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>智慧通勤管理后台</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">SC</div>
+        <div>
+          <div class="brand-title">智慧通勤</div>
+          <div class="brand-subtitle">管理后台 Web</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">运营总览</div>
+        <nav class="nav-list" id="navList"></nav>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="topbar-kicker" id="moduleKicker">首页看板</div>
+          <div class="topbar-title" id="moduleTitle">调度与运营总览</div>
+        </div>
+        <div class="topbar-actions">
+          <span class="topbar-pill">固定数据演示</span>
+          <span class="topbar-pill">Web 端</span>
+        </div>
+      </header>
+
+      <section class="hero card">
+        <div class="hero-copy">
+          <div class="hero-badge" id="moduleBadge">运营中枢</div>
+          <p class="hero-summary" id="moduleSummary">展示车辆、线路、呼叫、退款和资格待办的统一视图。</p>
+        </div>
+        <div class="hero-metrics" id="moduleMetrics"></div>
+      </section>
+
+      <section class="content-grid">
+        <section class="panel card">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title" id="panelTitle">模块卡片</div>
+              <div class="panel-subtitle" id="panelSubtitle">针对当前模块展示关键状态与操作入口。</div>
+            </div>
+          </div>
+          <div class="card-grid" id="moduleCards"></div>
+        </section>
+
+        <section class="panel card">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">实时摘要</div>
+              <div class="panel-subtitle">运营处理、审核和提醒的固定演示流。</div>
+            </div>
+          </div>
+          <div class="feed-list" id="moduleFeed"></div>
+        </section>
+      </section>
+
+      <section class="table card">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title" id="tableTitle">关键数据</div>
+            <div class="panel-subtitle">当前模块的固定表格演示。</div>
+          </div>
+        </div>
+        <div class="table-wrap" id="moduleTable"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

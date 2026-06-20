@@ -1,0 +1,19 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/schedule/index",
+    "pages/map/index",
+    "pages/detail/index",
+    "pages/reserve/index",
+    "pages/mine/index"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "智慧通勤",
+    "navigationBarBackgroundColor": "#eff9eb",
+    "navigationStyle": "custom"
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents"
+}

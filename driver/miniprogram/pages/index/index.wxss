@@ -1,0 +1,172 @@
+.driver-home {
+  padding-bottom: 0;
+}
+
+.driver-hero {
+  padding: 28rpx;
+  background:
+    radial-gradient(circle at top right, rgba(255, 186, 73, 0.14), transparent 30%),
+    linear-gradient(135deg, rgba(26, 39, 53, 0.98) 0%, rgba(18, 28, 39, 0.96) 100%);
+}
+
+.driver-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.driver-kicker {
+  font-size: 22rpx;
+  color: #98abc0;
+  font-weight: 800;
+}
+
+.driver-title {
+  margin-top: 8rpx;
+  font-size: 42rpx;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.driver-subtitle {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #9fb0bd;
+  line-height: 1.5;
+}
+
+.driver-status {
+  flex: none;
+  padding: 10rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 186, 73, 0.12);
+  color: #ffd48d;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.stats-grid {
+  margin-top: 20rpx;
+}
+
+.driver-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12rpx;
+  margin-top: 22rpx;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.task-card {
+  padding: 22rpx;
+  border-color: rgba(141, 169, 191, 0.1);
+}
+
+.task-card.is-active {
+  border-color: rgba(255, 186, 73, 0.35);
+  box-shadow: 0 16rpx 34rpx rgba(255, 186, 73, 0.08);
+}
+
+.task-top,
+.current-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.task-name {
+  font-size: 30rpx;
+  font-weight: 900;
+  color: #fff;
+}
+
+.task-sub {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #9fb0bd;
+}
+
+.task-badge {
+  flex: none;
+  padding: 10rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 186, 73, 0.12);
+  color: #ffd48d;
+  font-size: 20rpx;
+  font-weight: 800;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 14rpx;
+  font-size: 20rpx;
+  color: #a8b8c6;
+}
+
+.current-card,
+.alert-card,
+.rating-card {
+  padding: 22rpx;
+}
+
+.current-row + .current-row {
+  margin-top: 14rpx;
+}
+
+.current-item {
+  flex: 1;
+  padding: 18rpx;
+  border-radius: 20rpx;
+  background: rgba(23, 34, 48, 0.92);
+}
+
+.current-label {
+  display: block;
+  font-size: 20rpx;
+  color: #9fb0bd;
+}
+
+.current-value {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.alert-card.good {
+  background: linear-gradient(180deg, rgba(23, 34, 48, 0.96), rgba(20, 35, 44, 0.96));
+}
+
+.alert-card.warn {
+  background: linear-gradient(180deg, rgba(55, 44, 24, 0.96), rgba(32, 27, 23, 0.96));
+}
+
+.alert-card.alert {
+  background: linear-gradient(180deg, rgba(66, 27, 27, 0.96), rgba(32, 23, 23, 0.96));
+}
+
+.alert-title,
+.rating-name {
+  font-size: 28rpx;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.alert-meta,
+.rating-score,
+.rating-note {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #b3c2cf;
+  line-height: 1.5;
+}

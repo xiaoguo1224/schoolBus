@@ -1,0 +1,15 @@
+<view class="footer-shell">
+  <view class="footer-card card">
+    <view
+      wx:for="{{items}}"
+      wx:key="key"
+      class="footer-item {{activeKey === item.key ? 'is-active' : ''}}"
+      data-path="{{item.pagePath}}"
+      data-key="{{item.key}}"
+      bindtap="onNavigate"
+    >
+      <view class="footer-icon">{{item.shortLabel}}</view>
+      <text class="footer-label">{{item.label}}</text>
+    </view>
+  </view>
+</view>

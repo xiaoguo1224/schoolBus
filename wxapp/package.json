@@ -1,0 +1,19 @@
+{
+  "name": "miniprogram-ts-quickstart",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "@iconify-json/lucide": "^1.2.113",
+    "detect-libc": "^2.1.2",
+    "miniprogram-api-typings": "^2.8.3-1",
+    "sharp": "^0.35.1",
+    "typescript": "^5.8.3"
+  }
+}

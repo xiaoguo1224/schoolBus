@@ -1,0 +1,125 @@
+<view class="app-shell">
+  <scroll-view class="content-scroll" scroll-y>
+    <view class="page-body driver-home" style="padding-top: {{topInset}}px;">
+      <view class="driver-hero card">
+        <view class="driver-hero-top">
+          <view>
+            <view class="driver-kicker">今日任务驾驶舱</view>
+            <view class="driver-title">{{driverName}}</view>
+            <view class="driver-subtitle">{{driverRole}}</view>
+          </view>
+          <view class="driver-status">在线</view>
+        </view>
+
+        <view class="grid-2 stats-grid">
+          <view wx:for="{{driverStats}}" wx:key="label" class="stat-card">
+            <text class="stat-label">{{item.label}}</text>
+            <text class="stat-value">{{item.value}}</text>
+            <text class="stat-hint">{{item.hint}}</text>
+          </view>
+        </view>
+
+        <view class="driver-actions">
+          <view class="primary-button" bindtap="onStartTrip">开始行程</view>
+          <view class="ghost-button" bindtap="onConfirmArrival">到站确认</view>
+          <view class="ghost-button" bindtap="onOpenLogs">历史记录</view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">今日任务</view>
+          <view class="section-subtitle">按固定数据展示班次、车辆和进度</view>
+        </view>
+      </view>
+
+      <view class="task-list">
+        <view
+          wx:for="{{todayTasks}}"
+          wx:key="id"
+          class="task-card card {{selectedTask.id === item.id ? 'is-active' : ''}}"
+          data-task-id="{{item.id}}"
+          bindtap="onTaskTap"
+        >
+          <view class="task-top">
+            <view>
+              <view class="task-name">{{item.routeName}}</view>
+              <view class="task-sub">{{item.departTime}} - {{item.arriveTime}} · {{item.vehicle}}</view>
+            </view>
+            <view class="task-badge">{{item.status}}</view>
+          </view>
+          <view class="task-meta">
+            <text>座位 {{item.seats}}</text>
+            <text>{{item.note}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">当前执行</view>
+          <view class="section-subtitle">绑定车辆、行程进度和提醒状态</view>
+        </view>
+      </view>
+
+      <view class="current-card card">
+        <view class="current-row">
+          <view class="current-item">
+            <text class="current-label">车辆</text>
+            <text class="current-value">{{selectedTask.vehicle}}</text>
+          </view>
+          <view class="current-item">
+            <text class="current-label">座位</text>
+            <text class="current-value">{{selectedTask.seats}}</text>
+          </view>
+        </view>
+        <view class="current-row">
+          <view class="current-item">
+            <text class="current-label">运行状态</text>
+            <text class="current-value">{{selectedTask.status}}</text>
+          </view>
+          <view class="current-item">
+            <text class="current-label">备注</text>
+            <text class="current-value">{{selectedTask.note}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">呼叫与热点提醒</view>
+          <view class="section-subtitle">展示乘客呼叫和热点站点，帮助司机快速判断</view>
+        </view>
+      </view>
+
+      <view class="grid-2">
+        <view wx:for="{{callAlerts}}" wx:key="id" class="alert-card card {{item.tone}}">
+          <view class="alert-title">{{item.title}}</view>
+          <view class="alert-meta">{{item.station}} · {{item.count}}</view>
+        </view>
+      </view>
+
+      <view class="section-header">
+        <view>
+          <view class="section-title">考勤与评价</view>
+          <view class="section-subtitle">司机端的辅助信息也按固定数据演示</view>
+        </view>
+      </view>
+
+      <view class="grid-2">
+        <view wx:for="{{attendanceStats}}" wx:key="label" class="stat-card">
+          <text class="stat-label">{{item.label}}</text>
+          <text class="stat-value">{{item.value}}</text>
+          <text class="stat-hint">固定演示数据</text>
+        </view>
+        <view wx:for="{{ratingHighlights}}" wx:key="driver" class="rating-card card">
+          <view class="rating-name">{{item.driver}}</view>
+          <view class="rating-score">评分 {{item.score}}</view>
+          <view class="rating-note">{{item.note}}</view>
+        </view>
+      </view>
+
+      <view class="safe-bottom"></view>
+    </view>
+  </scroll-view>
+</view>
