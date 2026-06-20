@@ -10,11 +10,42 @@
 <body>
   <div class="app-shell">
     <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">SC</div>
-        <div>
-          <div class="brand-title">智慧通勤</div>
-          <div class="brand-subtitle">管理后台 Web</div>
+      <div class="sidebar-top">
+        <div class="brand">
+          <div class="brand-mark">SC</div>
+          <div>
+            <div class="brand-title">智慧通勤</div>
+            <div class="brand-subtitle">管理后台 Web</div>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <div class="sidebar-card-head">
+            <div>
+              <div class="sidebar-card-title">今日运营状态</div>
+              <div class="sidebar-card-copy">固定数据演示 · 调度、审核、热力图联动</div>
+            </div>
+            <span class="sidebar-badge">在线</span>
+          </div>
+
+          <div class="sidebar-stat-grid">
+            <div class="sidebar-stat">
+              <span>在线班车</span>
+              <strong>12</strong>
+            </div>
+            <div class="sidebar-stat">
+              <span>待处理</span>
+              <strong>08</strong>
+            </div>
+            <div class="sidebar-stat">
+              <span>高热站点</span>
+              <strong>06</strong>
+            </div>
+            <div class="sidebar-stat">
+              <span>异常告警</span>
+              <strong>03</strong>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -22,13 +53,31 @@
         <div class="sidebar-label">运营模块</div>
         <nav class="nav-list" id="navList"></nav>
       </div>
+
+      <div class="sidebar-foot">
+        <div class="sidebar-foot-title">演示模式</div>
+        <div class="sidebar-foot-copy">适用于固定数据、流程展示与界面评审。</div>
+        <div class="sidebar-foot-chips">
+          <span class="sidebar-foot-chip">地图调度</span>
+          <span class="sidebar-foot-chip">候车热力图</span>
+          <span class="sidebar-foot-chip">审核台</span>
+        </div>
+      </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
-        <div>
-          <div class="topbar-kicker" id="moduleKicker">运营总览</div>
-          <div class="topbar-title" id="moduleTitle">调度与运营工作台</div>
+        <div class="topbar-stack">
+          <div>
+            <div class="topbar-kicker" id="moduleKicker">运营总览</div>
+            <div class="topbar-title" id="moduleTitle">调度与运营工作台</div>
+          </div>
+          <div class="topbar-meta">
+            <span class="topbar-chip">固定数据演示</span>
+            <span class="topbar-chip">地图调度</span>
+            <span class="topbar-chip">候车热力图</span>
+            <span class="topbar-chip">共享电动车</span>
+          </div>
         </div>
         <div class="topbar-actions">
           <span class="topbar-pill">固定数据演示</span>
@@ -37,7 +86,7 @@
         </div>
       </header>
 
-      <section class="hero card">
+      <section class="hero card kpi-strip">
         <div class="hero-copy">
           <div class="hero-badge" id="moduleBadge">运营中枢</div>
           <p class="hero-summary" id="moduleSummary">地图调度、候车热力图、订单、退款和共享电动车资格统一展示。</p>
