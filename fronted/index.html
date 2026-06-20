@@ -18,7 +18,7 @@
       </div>
 
       <div class="sidebar-section">
-        <div class="sidebar-label">运营总览</div>
+        <div class="sidebar-label">运营模块</div>
         <nav class="nav-list" id="navList"></nav>
       </div>
     </aside>
@@ -26,53 +26,67 @@
     <main class="main">
       <header class="topbar">
         <div>
-          <div class="topbar-kicker" id="moduleKicker">首页看板</div>
-          <div class="topbar-title" id="moduleTitle">调度与运营总览</div>
+          <div class="topbar-kicker" id="moduleKicker">运营总览</div>
+          <div class="topbar-title" id="moduleTitle">调度与运营工作台</div>
         </div>
         <div class="topbar-actions">
           <span class="topbar-pill">固定数据演示</span>
-          <span class="topbar-pill">Web 端</span>
+          <span class="topbar-pill">亮主题</span>
+          <span class="topbar-pill">可交互</span>
         </div>
       </header>
 
       <section class="hero card">
         <div class="hero-copy">
           <div class="hero-badge" id="moduleBadge">运营中枢</div>
-          <p class="hero-summary" id="moduleSummary">展示车辆、线路、呼叫、退款和资格待办的统一视图。</p>
+          <p class="hero-summary" id="moduleSummary">地图调度、候车热力图、订单、退款和共享电动车资格统一展示。</p>
+          <div class="hero-actions" id="moduleActions"></div>
         </div>
         <div class="hero-metrics" id="moduleMetrics"></div>
       </section>
 
-      <section class="content-grid">
-        <section class="panel card">
+      <section class="workspace-grid">
+        <section class="workspace card">
           <div class="panel-header">
             <div>
-              <div class="panel-title" id="panelTitle">模块卡片</div>
-              <div class="panel-subtitle" id="panelSubtitle">针对当前模块展示关键状态与操作入口。</div>
+              <div class="panel-title" id="workspaceTitle">调度工作区</div>
+              <div class="panel-subtitle" id="workspaceSubtitle">切换模块、线路和热度后，工作区内容会同步变化。</div>
             </div>
           </div>
-          <div class="card-grid" id="moduleCards"></div>
+          <div id="workspace"></div>
         </section>
 
-        <section class="panel card">
-          <div class="panel-header">
-            <div>
-              <div class="panel-title">实时摘要</div>
-              <div class="panel-subtitle">运营处理、审核和提醒的固定演示流。</div>
+        <aside class="rail">
+          <section class="panel card">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title" id="cardsTitle">模块卡片</div>
+                <div class="panel-subtitle" id="cardsSubtitle">当前模块的关键动作与状态。</div>
+              </div>
             </div>
-          </div>
-          <div class="feed-list" id="moduleFeed"></div>
-        </section>
-      </section>
+            <div id="moduleCards"></div>
+          </section>
 
-      <section class="table card">
-        <div class="panel-header">
-          <div>
-            <div class="panel-title" id="tableTitle">关键数据</div>
-            <div class="panel-subtitle">当前模块的固定表格演示。</div>
-          </div>
-        </div>
-        <div class="table-wrap" id="moduleTable"></div>
+          <section class="panel card">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">实时摘要</div>
+                <div class="panel-subtitle">调度、审核和提醒的固定演示流。</div>
+              </div>
+            </div>
+            <div class="feed-list" id="moduleFeed"></div>
+          </section>
+
+          <section class="panel card">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title" id="tableTitle">关键数据</div>
+                <div class="panel-subtitle">当前模块的固定表格演示。</div>
+              </div>
+            </div>
+            <div class="table-wrap" id="moduleTable"></div>
+          </section>
+        </aside>
       </section>
     </main>
   </div>

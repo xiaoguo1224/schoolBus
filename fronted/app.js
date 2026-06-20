@@ -766,12 +766,170 @@ const moduleTitle = document.getElementById('moduleTitle')
 const moduleBadge = document.getElementById('moduleBadge')
 const moduleSummary = document.getElementById('moduleSummary')
 const moduleMetrics = document.getElementById('moduleMetrics')
+const moduleActions = document.getElementById('moduleActions')
+const workspace = document.getElementById('workspace')
+const workspaceTitle = document.getElementById('workspaceTitle')
+const workspaceSubtitle = document.getElementById('workspaceSubtitle')
+const cardsTitle = document.getElementById('cardsTitle')
+const cardsSubtitle = document.getElementById('cardsSubtitle')
 const moduleCards = document.getElementById('moduleCards')
 const moduleFeed = document.getElementById('moduleFeed')
 const moduleTable = document.getElementById('moduleTable')
-const panelTitle = document.getElementById('panelTitle')
-const panelSubtitle = document.getElementById('panelSubtitle')
 const tableTitle = document.getElementById('tableTitle')
+
+const dispatchRoutes = [
+  {
+    id: 'route-01',
+    title: '早高峰接驳 01 线',
+    direction: '北门 -> 南门',
+    bus: '17 号车',
+    eta: '07:31',
+    occupancy: '12 / 34',
+    speed: '22 km/h',
+    status: '运行中',
+    summary: '北门候车人数上升，优先保持图书馆和南门通达。',
+    accent: '#4d81ff',
+    markerTone: 'is-selected',
+    stops: [
+      { name: '北门', note: '12 人候车', x: 18, y: 74, hot: true },
+      { name: '图书馆', note: '到达 07:31', x: 40, y: 55, hot: false },
+      { name: '行政楼', note: '中途补位', x: 58, y: 42, hot: false },
+      { name: '南门', note: '终点', x: 78, y: 28, hot: true },
+    ],
+    events: [
+      { time: '07:20', title: '车辆已出发', desc: '北门接驳已开始。' },
+      { time: '07:28', title: '图书馆呼叫增加', desc: '已同步给司机端。' },
+      { time: '07:31', title: '预计抵达', desc: '正在接近下一站。' },
+    ],
+    actions: ['发送提醒', '跟随车辆', '标记异常'],
+  },
+  {
+    id: 'route-02',
+    title: '午间环线 02 线',
+    direction: '图书馆 -> 东门',
+    bus: '26 号车',
+    eta: '12:18',
+    occupancy: '5 / 28',
+    speed: '18 km/h',
+    status: '即将发车',
+    summary: '午间换乘高峰，重点关注图书馆站的出发节奏。',
+    accent: '#36b7a1',
+    markerTone: '',
+    stops: [
+      { name: '图书馆', note: '待发车', x: 20, y: 66, hot: true },
+      { name: '东门', note: '终点', x: 47, y: 49, hot: false },
+      { name: '食堂', note: '路过', x: 68, y: 34, hot: false },
+      { name: '北校区', note: '返回', x: 84, y: 18, hot: false },
+    ],
+    events: [
+      { time: '12:00', title: '车辆待命', desc: '等待乘客上车。' },
+      { time: '12:08', title: '呼叫处理', desc: '图书馆站已聚集。' },
+      { time: '12:18', title: '预计发车', desc: '准备起步。' },
+    ],
+    actions: ['发送提醒', '加开一班', '查看座位'],
+  },
+  {
+    id: 'route-03',
+    title: '晚高峰返程 03 线',
+    direction: '南门 -> 研究生院',
+    bus: '32 号车',
+    eta: '17:46',
+    occupancy: '18 / 34',
+    speed: '20 km/h',
+    status: '候车中',
+    summary: '返程高峰已开启，南门与研究生院需要优先关注。',
+    accent: '#f1b84f',
+    markerTone: '',
+    stops: [
+      { name: '南门', note: '高热站', x: 18, y: 70, hot: true },
+      { name: '研究生院', note: '终点', x: 46, y: 52, hot: false },
+      { name: '教学楼', note: '返程中', x: 63, y: 38, hot: false },
+      { name: '北门', note: '回程', x: 84, y: 22, hot: false },
+    ],
+    events: [
+      { time: '17:30', title: '候车人数增加', desc: '返程需求上升。' },
+      { time: '17:40', title: '调度准备', desc: '车辆进入等待状态。' },
+      { time: '17:46', title: '预计到站', desc: '将触发到站提醒。' },
+    ],
+    actions: ['发送提醒', '查看热力', '标记完成'],
+  },
+]
+
+const heatmapPeriods = [
+  {
+    id: 'morning',
+    label: '早高峰',
+    time: '07:00 - 09:00',
+    note: '北门、图书馆和南门最热。',
+    accent: 'level-5',
+    stats: [
+      { label: '高热站点', value: '06' },
+      { label: '重点时段', value: '07:30' },
+      { label: '建议', value: '优先加车' },
+    ],
+    cells: [
+      { name: '北门', count: '92', level: 5, note: '12 人候车' },
+      { name: '图书馆', count: '86', level: 4, note: '候车密集' },
+      { name: '南门', count: '89', level: 5, note: '返程排队' },
+      { name: '研究生院', count: '74', level: 3, note: '持续升温' },
+      { name: '东门', count: '61', level: 3, note: '正常' },
+      { name: '南校区', count: '53', level: 2, note: '稳定需求' },
+      { name: '食堂', count: '45', level: 2, note: '轻度聚集' },
+      { name: '行政楼', count: '38', level: 1, note: '低热' },
+    ],
+  },
+  {
+    id: 'midday',
+    label: '午间',
+    time: '11:30 - 13:30',
+    note: '图书馆和食堂需求更明显。',
+    accent: 'level-3',
+    stats: [
+      { label: '高热站点', value: '04' },
+      { label: '重点时段', value: '12:10' },
+      { label: '建议', value: '稳定排班' },
+    ],
+    cells: [
+      { name: '图书馆', count: '72', level: 4, note: '候车上升' },
+      { name: '食堂', count: '67', level: 4, note: '短时聚集' },
+      { name: '北门', count: '48', level: 2, note: '平稳' },
+      { name: '东门', count: '41', level: 2, note: '正常' },
+      { name: '南门', count: '35', level: 1, note: '较低' },
+      { name: '行政楼', count: '28', level: 1, note: '低热' },
+      { name: '研究生院', count: '31', level: 1, note: '平稳' },
+      { name: '南校区', count: '38', level: 2, note: '穿梭需求' },
+    ],
+  },
+  {
+    id: 'evening',
+    label: '晚高峰',
+    time: '16:30 - 19:00',
+    note: '南门与研究生院返程需求最强。',
+    accent: 'level-4',
+    stats: [
+      { label: '高热站点', value: '05' },
+      { label: '重点时段', value: '17:40' },
+      { label: '建议', value: '返程优先' },
+    ],
+    cells: [
+      { name: '南门', count: '94', level: 5, note: '返程高热' },
+      { name: '研究生院', count: '83', level: 5, note: '集中候车' },
+      { name: '图书馆', count: '78', level: 4, note: '持续上升' },
+      { name: '北门', count: '64', level: 3, note: '排队明显' },
+      { name: '东门', count: '49', level: 2, note: '正常' },
+      { name: '食堂', count: '46', level: 2, note: '散点需求' },
+      { name: '南校区', count: '54', level: 3, note: '穿梭频繁' },
+      { name: '行政楼', count: '32', level: 1, note: '低热' },
+    ],
+  },
+]
+
+var appState = {
+  activeModuleId: 'dashboard',
+  selectedRouteId: 'route-01',
+  selectedHeatPeriodId: 'morning',
+  lastAction: '固定数据演示，可切换模块、线路和热度。',
+}
 
 function renderNav(activeId) {
   if (!navList) {
@@ -793,44 +951,136 @@ function renderNav(activeId) {
   })
 }
 
-function renderModule(id) {
-  const module = modules.find((item) => item.id === id) || modules[0]
-  if (moduleKicker) moduleKicker.textContent = module.kicker
-  if (moduleTitle) moduleTitle.textContent = module.title
-  if (moduleBadge) moduleBadge.textContent = module.label
-  if (moduleSummary) moduleSummary.textContent = module.summary
-  if (panelTitle) panelTitle.textContent = module.title
-  if (panelSubtitle) panelSubtitle.textContent = `${module.label} 的固定数据演示`
-  if (tableTitle) tableTitle.textContent = `${module.title} - ${module.tableTitle}`
+function getBadgeTone(value) {
+  const text = String(value)
+  if (text.includes('运行中') || text.includes('通过') || text.includes('已支付') || text.includes('可租') || text.includes('已完成') || text.includes('已绑定') || text.includes('启用')) {
+    return 'good'
+  }
+  if (text.includes('待') || text.includes('处理中') || text.includes('待处理') || text.includes('待复考') || text.includes('待出发') || text.includes('即将')) {
+    return 'warn'
+  }
+  if (text.includes('异常') || text.includes('冻结') || text.includes('停用') || text.includes('驳回') || text.includes('缺考')) {
+    return 'danger'
+  }
+  return 'info'
+}
 
-  if (moduleMetrics) {
-    moduleMetrics.innerHTML = module.metrics
-      .map(
-        (metric) => `
-          <div class="metric">
-            <div class="metric-label">${metric.label}</div>
-            <div class="metric-value">${metric.value}</div>
-            <div class="metric-note">${metric.note}</div>
-          </div>
-        `,
-      )
-      .join('')
+function renderMetrics(module) {
+  if (!moduleMetrics) {
+    return
+  }
+  moduleMetrics.innerHTML = module.metrics
+    .map(
+      (metric) => `
+        <div class="metric">
+          <div class="metric-label">${metric.label}</div>
+          <div class="metric-value">${metric.value}</div>
+          <div class="metric-note">${metric.note}</div>
+        </div>
+      `,
+    )
+    .join('')
+}
+
+function renderActions(module) {
+  if (!moduleActions) {
+    return
   }
 
+  const actionSets = {
+    dashboard: [
+      { label: '进入地图', action: 'module', target: 'dispatch-map', primary: true },
+      { label: '候车热力图', action: 'module', target: 'heatmap' },
+      { label: '刷新总览', action: 'refresh' },
+    ],
+    'dispatch-map': [
+      { label: '发送调度', action: 'route', value: 'route-01', primary: true },
+      { label: '切到午间', action: 'route', value: 'route-02' },
+      { label: '标记异常', action: 'flag' },
+    ],
+    heatmap: [
+      { label: '早高峰', action: 'heat', value: 'morning', primary: true },
+      { label: '午间', action: 'heat', value: 'midday' },
+      { label: '晚高峰', action: 'heat', value: 'evening' },
+    ],
+  }
+
+  const actions = actionSets[module.id] || [
+    { label: '刷新', action: 'refresh', primary: true },
+    { label: '导出报表', action: 'export' },
+    { label: '查看详情', action: 'detail' },
+  ]
+
+  moduleActions.innerHTML = actions
+    .map(
+      (action) => `
+        <button class="action-button ${action.primary ? 'is-primary' : ''}" data-action="${action.action}" ${action.target ? `data-target="${action.target}"` : ''} ${action.value ? `data-value="${action.value}"` : ''}>
+          ${action.label}
+        </button>
+      `,
+    )
+    .join('')
+
+  moduleActions.querySelectorAll('[data-action]').forEach((button) => {
+    button.addEventListener('click', () => handleAction(button.dataset.action || '', button.dataset.target || '', button.dataset.value || ''))
+  })
+}
+
+function handleAction(action, target, value) {
+  if (action === 'module' && target) {
+    renderModule(target)
+    return
+  }
+  if (action === 'route' && value) {
+    appState.selectedRouteId = value
+    appState.lastAction = `已切换线路到 ${value.replace('route-', '').replace('0', '')}`
+    renderModule('dispatch-map')
+    return
+  }
+  if (action === 'heat' && value) {
+    appState.selectedHeatPeriodId = value
+    appState.lastAction = `已切换到 ${value === 'morning' ? '早高峰' : value === 'midday' ? '午间' : '晚高峰'}`
+    renderModule('heatmap')
+    return
+  }
+  if (action === 'flag') {
+    appState.lastAction = '异常已标记，等待复核'
+    renderModule('dispatch-map')
+    return
+  }
+  if (action === 'refresh') {
+    appState.lastAction = '数据已刷新'
+  } else if (action === 'export') {
+    appState.lastAction = '已导出当前模块'
+  } else if (action === 'detail') {
+    appState.lastAction = '已打开详细视图'
+  }
+  renderModule(appState.activeModuleId)
+}
+
+function renderRail(module) {
+  if (cardsTitle) cardsTitle.textContent = `${module.label} 卡片`
+  if (cardsSubtitle) cardsSubtitle.textContent = '点击左侧模块卡片后，右侧内容会同步。'
+  if (tableTitle) tableTitle.textContent = `${module.title} - ${module.tableTitle}`
+
   if (moduleCards) {
-    moduleCards.innerHTML = module.cards
-      .map(
-        (card) => `
-          <article class="mini-card">
-            <div class="mini-card-title">${card.title}</div>
-            <div class="mini-card-desc">${card.desc}</div>
-            <div class="mini-card-footer">
-              ${card.tags.map((tag) => `<span class="tag">${tag}</span>`).join('')}
-            </div>
-          </article>
-        `,
-      )
-      .join('')
+    moduleCards.innerHTML = `
+      <div class="mini-card-grid">
+        ${module.cards
+          .map(
+            (card) => `
+              <article class="mini-card">
+                <div class="mini-card-title">${card.title}</div>
+                <div class="mini-card-desc">${card.desc}</div>
+                <div class="mini-card-footer">
+                  ${card.tags.map((tag) => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+              </article>
+            `,
+          )
+          .join('')}
+      </div>
+    `
   }
 
   if (moduleFeed) {
@@ -871,22 +1121,332 @@ function renderModule(id) {
       </table>
     `
   }
-
-  renderNav(module.id)
 }
 
-function getBadgeTone(value) {
-  const text = String(value)
-  if (text.includes('运行中') || text.includes('通过') || text.includes('已支付') || text.includes('可租') || text.includes('已完成') || text.includes('已绑定') || text.includes('启用')) {
-    return 'good'
+function renderDashboardWorkspace(module) {
+  if (workspaceTitle) workspaceTitle.textContent = '运营总览'
+  if (workspaceSubtitle) workspaceSubtitle.textContent = '总览页可直接进入地图调度和候车热力图。'
+
+  const highlightCards = [
+    { label: '地图调度', value: '12 车在线', note: '点击进入调度视图' },
+    { label: '热力图', value: '06 热点', note: '查看高热站点' },
+    { label: '订单管理', value: '124 单', note: '扫码订单与退款' },
+    { label: '资格管理', value: '128 人', note: '共享电动车资格' },
+  ]
+
+  if (workspace) {
+    workspace.innerHTML = `
+      <div class="workspace-summary">
+        ${highlightCards
+          .map(
+            (card) => `
+              <article class="summary-card">
+                <div class="summary-label">${card.label}</div>
+                <div class="summary-value">${card.value}</div>
+                <div class="summary-note">${card.note}</div>
+              </article>
+            `,
+          )
+          .join('')}
+      </div>
+      <div class="mini-card-grid">
+        ${module.cards
+          .slice(0, 4)
+          .map(
+            (card) => `
+              <article class="mini-card">
+                <div class="mini-card-title">${card.title}</div>
+                <div class="mini-card-desc">${card.desc}</div>
+                <div class="mini-card-footer">
+                  ${card.tags.map((tag) => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+              </article>
+            `,
+          )
+          .join('')}
+      </div>
+      <div class="workspace-foot">点击左侧“地图调度”或“候车热力图”即可进入更具体的演示工作区。</div>
+    `
   }
-  if (text.includes('待') || text.includes('处理中') || text.includes('待处理') || text.includes('待复考') || text.includes('待出发')) {
-    return 'warn'
+}
+
+function renderDispatchWorkspace() {
+  const route = dispatchRoutes.find((item) => item.id === appState.selectedRouteId) || dispatchRoutes[0]
+  if (workspaceTitle) workspaceTitle.textContent = '地图调度看板'
+  if (workspaceSubtitle) workspaceSubtitle.textContent = '车辆、线路、站点和调度动作联动演示。'
+
+  const routeButtons = dispatchRoutes
+    .map(
+      (item) => `
+        <button class="route-chip ${item.id === route.id ? 'is-active' : ''}" data-route-id="${item.id}">
+          ${item.title}
+        </button>
+      `,
+    )
+    .join('')
+
+  if (workspace) {
+    workspace.innerHTML = `
+      <div class="dispatch-shell">
+        <div>
+          <div class="route-selector">${routeButtons}</div>
+          <div class="dispatch-map" style="margin-top: 14px;">
+            <div class="dispatch-route-line"></div>
+            <div class="dispatch-route-line secondary"></div>
+            <div class="dispatch-route-line tertiary"></div>
+            ${route.stops
+              .map(
+                (stop) => `
+                  <div class="dispatch-node ${stop.hot ? 'is-hot' : ''}" style="left:${stop.x}%; top:${stop.y}%"></div>
+                  <div class="dispatch-marker ${route.markerTone}" style="left:${stop.x}%; top:${stop.y}%">
+                    <div class="dispatch-marker-label">${stop.name}</div>
+                    <div class="dispatch-marker-value">${stop.note}</div>
+                  </div>
+                `,
+              )
+              .join('')}
+          </div>
+        </div>
+
+        <div class="route-detail">
+          <div class="detail-card">
+            <div class="detail-title">${route.title}</div>
+            <div class="detail-copy">${route.summary}</div>
+            <div class="detail-meta">
+              <div class="detail-meta-item">方向 ${route.direction}</div>
+              <div class="detail-meta-item">车辆 ${route.bus}</div>
+              <div class="detail-meta-item">ETA ${route.eta}</div>
+              <div class="detail-meta-item">空座 ${route.occupancy}</div>
+              <div class="detail-meta-item">时速 ${route.speed}</div>
+              <div class="detail-meta-item">状态 ${route.status}</div>
+            </div>
+            <div class="detail-actions" style="margin-top: 14px;">
+              ${route.actions
+                .map(
+                  (action) => `
+                    <button class="action-button is-primary" data-route-action="${action}">${action}</button>
+                  `,
+                )
+                .join('')}
+            </div>
+          </div>
+
+          <div class="dispatch-log">
+            <div class="section-title-inline">调度动态</div>
+            ${route.events
+              .map(
+                (event) => `
+                  <div class="feed-item" style="margin-bottom: 10px;">
+                    <div class="feed-head">
+                      <div class="feed-title">${event.title}</div>
+                      <div class="feed-time">${event.time}</div>
+                    </div>
+                    <div class="feed-text">${event.desc}</div>
+                  </div>
+                `,
+              )
+              .join('')}
+          </div>
+        </div>
+      </div>
+    `
+
+    workspace.querySelectorAll('[data-route-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        appState.selectedRouteId = button.getAttribute('data-route-id') || route.id
+        appState.lastAction = `已切换到 ${dispatchRoutes.find((item) => item.id === appState.selectedRouteId)?.title || route.title}`
+        renderModule('dispatch-map')
+      })
+    })
+
+    workspace.querySelectorAll('[data-route-action]').forEach((button) => {
+      button.addEventListener('click', () => {
+        appState.lastAction = `已触发：${button.getAttribute('data-route-action')}`
+        renderModule('dispatch-map')
+      })
+    })
   }
-  if (text.includes('异常') || text.includes('冻结') || text.includes('停用') || text.includes('驳回') || text.includes('缺考')) {
-    return 'danger'
+}
+
+function renderHeatmapWorkspace() {
+  const period = heatmapPeriods.find((item) => item.id === appState.selectedHeatPeriodId) || heatmapPeriods[0]
+  if (workspaceTitle) workspaceTitle.textContent = '候车热力图'
+  if (workspaceSubtitle) workspaceSubtitle.textContent = '按时段查看站点热度、优先级和调度建议。'
+
+  if (workspace) {
+    workspace.innerHTML = `
+      <div class="heat-tabs">${heatmapPeriods
+        .map(
+          (item) => `
+            <button class="heat-chip ${item.id === period.id ? 'is-active' : ''}" data-heat-id="${item.id}">
+              ${item.label} · ${item.time}
+            </button>
+          `,
+        )
+        .join('')}</div>
+
+      <div class="heat-section" style="margin-top: 14px;">
+        <div>
+          <div class="heatmap-board">
+            <div class="heat-grid" style="position: relative; z-index: 1; padding: 18px;">
+              ${period.cells
+                .map(
+                  (cell) => `
+                    <div class="heat-cell level-${cell.level}">
+                      <div class="heat-cell-label">${cell.name}</div>
+                      <div class="heat-cell-value">${cell.count}</div>
+                      <div class="heat-cell-note">${cell.note}</div>
+                    </div>
+                  `,
+                )
+                .join('')}
+            </div>
+          </div>
+
+          <div class="heat-legend" style="margin-top: 14px;">
+            <div class="section-title-inline">热度说明</div>
+            <div class="heat-legend-row">
+              <div class="heat-legend-item">1-2 低热</div>
+              <div class="heat-legend-item">3 中热</div>
+              <div class="heat-legend-item">4-5 高热</div>
+              <div class="heat-legend-item">点击时段切换</div>
+            </div>
+            <div class="heat-note" style="margin-top: 12px;">${period.note}</div>
+          </div>
+        </div>
+
+        <div class="heat-detail">
+          <div class="heat-stats">
+            <div class="section-title-inline">时段摘要</div>
+            <div class="heat-stats-row">
+              ${period.stats
+                .map(
+                  (stat) => `
+                    <div class="heat-stat">
+                      <div style="font-size: 11px; color: #6d8097;">${stat.label}</div>
+                      <div style="margin-top: 6px; font-size: 18px; font-weight: 900;">${stat.value}</div>
+                    </div>
+                  `,
+                )
+                .join('')}
+            </div>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-title">站点建议</div>
+            <div class="detail-copy">根据当前热度，系统会给出调度和加车建议。</div>
+            <div class="heat-station-list" style="margin-top: 14px;">
+              ${period.cells
+                .slice(0, 4)
+                .map(
+                  (station) => `
+                    <div class="heat-station">
+                      <div class="heat-station-top">
+                        <span>${station.name}</span>
+                        <span>${station.count}</span>
+                      </div>
+                      <div class="heat-station-meta">${station.note}</div>
+                    </div>
+                  `,
+                )
+                .join('')}
+            </div>
+          </div>
+
+          <div class="detail-card">
+            <div class="detail-title">操作建议</div>
+            <div class="detail-copy">可以直接点按钮切换时段，或者导出当前热度视图。</div>
+            <div class="detail-actions" style="margin-top: 14px;">
+              <button class="action-button is-primary" data-heat-action="refresh">刷新热图</button>
+              <button class="action-button" data-heat-action="export">导出热图</button>
+              <button class="action-button" data-heat-action="focus">聚焦高热站点</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+
+    workspace.querySelectorAll('[data-heat-id]').forEach((button) => {
+      button.addEventListener('click', () => {
+        appState.selectedHeatPeriodId = button.getAttribute('data-heat-id') || period.id
+        appState.lastAction = `已切换到 ${heatmapPeriods.find((item) => item.id === appState.selectedHeatPeriodId)?.label || period.label}`
+        renderModule('heatmap')
+      })
+    })
+
+    workspace.querySelectorAll('[data-heat-action]').forEach((button) => {
+      button.addEventListener('click', () => {
+        appState.lastAction = `热力图：${button.getAttribute('data-heat-action')}`
+        renderModule('heatmap')
+      })
+    })
   }
-  return 'info'
+}
+
+function renderGenericWorkspace(module) {
+  if (workspaceTitle) workspaceTitle.textContent = module.title
+  if (workspaceSubtitle) workspaceSubtitle.textContent = `${module.label} 的固定数据工作区。`
+
+  if (workspace) {
+    const cardsHtml = module.cards
+      .map(
+        (card) => `
+          <article class="mini-card" style="background:#fff;">
+            <div class="mini-card-title">${card.title}</div>
+            <div class="mini-card-desc">${card.desc}</div>
+            <div class="mini-card-footer">
+              ${card.tags.map((tag) => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+          </article>
+        `,
+      )
+      .join('')
+
+    workspace.innerHTML = `
+      <div class="workspace-summary">
+        ${module.metrics
+          .slice(0, 4)
+          .map(
+            (metric) => `
+              <article class="summary-card">
+                <div class="summary-label">${metric.label}</div>
+                <div class="summary-value">${metric.value}</div>
+                <div class="summary-note">${metric.note}</div>
+              </article>
+            `,
+          )
+          .join('')}
+      </div>
+      <div class="mini-card-grid">${cardsHtml}</div>
+      <div class="workspace-foot">本模块支持切换卡片、查看右侧摘要和表格。</div>
+    `
+  }
+}
+
+function renderModule(id) {
+  const module = modules.find((item) => item.id === id) || modules[0]
+  appState.activeModuleId = module.id
+
+  if (moduleKicker) moduleKicker.textContent = module.kicker
+  if (moduleTitle) moduleTitle.textContent = module.title
+  if (moduleBadge) moduleBadge.textContent = module.label
+  if (moduleSummary) moduleSummary.textContent = `${module.summary}${appState.lastAction ? ` · ${appState.lastAction}` : ''}`
+
+  renderMetrics(module)
+  renderActions(module)
+  renderRail(module)
+
+  if (module.id === 'dispatch-map') {
+    renderDispatchWorkspace()
+  } else if (module.id === 'heatmap') {
+    renderHeatmapWorkspace()
+  } else if (module.id === 'dashboard') {
+    renderDashboardWorkspace(module)
+  } else {
+    renderGenericWorkspace(module)
+  }
+
+  renderNav(module.id)
 }
 
 renderModule('dashboard')

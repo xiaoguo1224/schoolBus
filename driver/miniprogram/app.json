@@ -6,8 +6,8 @@
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "司机端",
-    "navigationBarBackgroundColor": "#0f1720",
-    "backgroundColor": "#0f1720"
+    "navigationBarBackgroundColor": "#f5f8ff",
+    "backgroundColor": "#f5f8ff"
   },
   "style": "v2",
   "componentFramework": "glass-easel",
